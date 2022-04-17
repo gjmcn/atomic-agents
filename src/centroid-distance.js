@@ -1,0 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+// Centroid-to-centroid distance functions.
+////////////////////////////////////////////////////////////////////////////////
+
+export function centroidDistance(u, v) {
+  return Math.sqrt((v.x - u.x) ** 2 + (v.y - u.y) ** 2);
+}
+
+export function centroidDistanceSqd(u, v) {
+  return (v.x - u.x) ** 2 + (v.y - u.y) ** 2;
+}

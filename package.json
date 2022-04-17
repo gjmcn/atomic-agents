@@ -1,0 +1,29 @@
+{
+  "name": "atomic-agents",
+  "version": "0.1.0",
+  "description": "Spatial Agent-based Modeling in JavaScript.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "build": "esbuild src/index.js --format=esm --bundle --minify --sourcemap --outfile=dist/atomic-agents.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gjmcn/atomic-agents.git"
+  },
+  "author": "Graham McNeill",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gjmcn/atomic-agents/issues"
+  },
+  "homepage": "https://github.com/gjmcn/atomic-agents#readme",
+  "dependencies": {
+    "d3-ease": "^3.0.1",
+    "d3-random": "^3.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.12.19",
+    "jest": "^27.0.6"
+  }
+}

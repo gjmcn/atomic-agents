@@ -1,0 +1,5 @@
+node_modules/
+.vscode/
+docs/
+__tests__/
+scratch.js
