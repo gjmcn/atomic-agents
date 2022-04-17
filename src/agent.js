@@ -15,10 +15,11 @@ import { randomCircles } from './random-circles.js';
 export class Agent {
   
   constructor(options = {}) {
-    this.x       = options.x       ?? 0;
-    this.y       = options.y       ?? 0;
-    this.state   = options.state   ?? {};
-    this.history = options.history ?? {};
+    this.x           = options.x           ?? 0;
+    this.y           = options.y           ?? 0;
+    this.state       = options.state       ?? {};
+    this.history     = options.history     ?? {};
+    this.updateState = options.updateState ?? null;
     this.bounceLog      = new XSet();
     this._simulation    = null;
     this._labels        = new Map();

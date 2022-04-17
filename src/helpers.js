@@ -203,9 +203,10 @@ export function getLayer(sim, level, limits) {
 
 // The value at the given time of a repeating sequence with the given period
 // and steps 0, 1, ..., steps - 1.
+// - if time < 0, it is rounded up to 0
 // - period should be divisible by steps
 export function frame(period, steps, time) {
-  return Math.floor(time % period / (period / steps));
+  return Math.floor(Math.max(time, 0) % period / (period / steps));
 }
 
 // Grid points in rectangle - any object with properties xMin, xMax, yMin, yMax.
