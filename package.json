@@ -2,11 +2,12 @@
   "name": "atomic-agents",
   "version": "0.1.0",
   "description": "Spatial Agent-based Modeling in JavaScript.",
-  "main": "index.js",
   "type": "module",
+  "main": "src/index.js",
+  "module": "dist/index.js", 
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "build": "esbuild src/index.js --format=esm --bundle --minify --sourcemap --outfile=dist/atomic-agents.js"
+    "build": "esbuild src/index.js --format=esm --bundle --sourcemap --outfile=dist/index.js"
   },
   "jest": {
     "testPathIgnorePatterns": [
