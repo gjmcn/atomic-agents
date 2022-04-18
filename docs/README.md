@@ -77,7 +77,7 @@ To install with npm:
 npm install @gjmcn/atomic-agents
 ```
 
-In the browser using Skypack CDN:
+Alternatively, import directly from the Skypack CDN (browser only):
 
 ```js
 // import everything as AA
@@ -85,10 +85,12 @@ import * as AA from 'https://cdn.skypack.dev/@gjmcn/atomic-agents';
 ```
 
 ```js
-// named imports
+// or use named imports
 import { Simulation, Actor, Zone, /* others */ } from
   'https://cdn.skypack.dev/@gjmcn/atomic-agents';
 ```
+
+?> Note: append `?min` to the Skypack URL for minified code.
 
 ## Quick Start Example
 
