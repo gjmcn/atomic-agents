@@ -1,20 +1,5 @@
+import { circle, rect } from './test-helpers';
 import { centroidWithin } from '../src/centroid-within';
-
-function circle(x, y, radius) {
-  return {_shape: 'circle', x, y, radius};
-}
-
-function rect(xMin, xMax, yMin, yMax) {
-  return {
-    _shape: 'rect',
-    xMin,
-    xMax,
-    yMin,
-    yMax,
-    x: (xMin + xMax) / 2,
-    y: (yMin + yMax) / 2
-  };
-}
 
 const c1 = circle(4, 3, 2);
 const c2 = circle(4.5, 3.5, 0.5);

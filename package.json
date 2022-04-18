@@ -8,6 +8,11 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "build": "esbuild src/index.js --format=esm --bundle --minify --sourcemap --outfile=dist/atomic-agents.js"
   },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "<rootDir>/__tests__/test-helpers.js"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gjmcn/atomic-agents.git"

@@ -1,12 +1,5 @@
+import { circle, rect } from './test-helpers';
 import { overlap } from '../src/overlap';
-
-function circle(x, y, radius) {
-  return {_shape: 'circle', x, y, radius};
-}
-
-function rect(xMin, xMax, yMin, yMax) {
-  return {_shape: 'rect', xMin, xMax, yMin, yMax};
-}
 
 const c1 = circle(1, 2, 3);
 const c2 = circle(5, 3, 2);

@@ -1,12 +1,5 @@
+import { circle, rect } from './test-helpers';
 import { within } from '../src/within';
-
-function circle(x, y, radius) {
-  return {_shape: 'circle', x, y, radius};
-}
-
-function rect(xMin, xMax, yMin, yMax) {
-  return {_shape: 'rect', xMin, xMax, yMin, yMax};
-}
 
 const c1 = circle(4, 3, 2);
 const c2 = circle(4.5, 3.5, 1);
