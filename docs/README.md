@@ -224,7 +224,7 @@ Static properties are accessed via the `Simulation` class itself. E.g. `Simulati
 
 | Property | Type | Default | Description |
 |:---|:---|:---|:---|
-| `single` | boolean | `false` | If `true`, `Simulation` keeps a reference to the most recently created simulation and calls its `end` method when a new simulation is created. `single` is useful in interactive environments such as [Observable](https://observablehq.com/) where we often 'replace' a simulation (e.g. after changing some parameters) and want the old simulation to stop running. |
+| `single` | boolean | `false` | If `true`, `Simulation` keeps a reference to the most recently created simulation and calls its `end` method when a new simulation is created. |
 
 ### Methods <small>&ndash; basic</small>
 
