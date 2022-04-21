@@ -35,9 +35,9 @@ export class Simulation {
     this.applyInteractionForces = options.applyInteractionForces ?? true;
     this.applySteeringForces    = options.applySteeringForces    ?? true;
     this.applyContainers        = options.applyContainers        ?? true;
-    this.beforeTick             = options.beforeTick             ?? null;
-    this.afterTick              = options.afterTick              ?? null;
-    this.stop                   = options.stop                   ?? null;
+    if (options.beforeTick) this.beforeTick = options.beforeTick;
+    if (options.afterTick)  this.afterTick  = options.afterTick;
+    if (options.stop)       this.stop       = options.stop;
     this.tickIndex      = -1;
     this._labels        = new Map();
     this.__simulation   = true;

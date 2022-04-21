@@ -146,6 +146,8 @@ The simulation grid is used as a simple <i>spatial index</i>: we track which squ
 
 # API
 
+## Summary
+
 Atomic Agents exports the following:
 
 * [`Simulation`](#simulation): simulation class.
@@ -157,7 +159,11 @@ Atomic Agents exports the following:
 
 These are described in detail in the following sections.
 
-!> Properties labelled "read only" are actually writable &mdash; do not change them! Similarly, only methods that are "user-defined" should be set.
+Notes:
+
+* Properties labelled __"read only"__ are actually writable &mdash; __do not change them!__
+
+* When a __"user-defined"__ method is passed as on option to a constructor, the method is set on the instance. For example, `let a = new Actor({updateState: f})` is equivalent to `let a = new Actor(); a.updateState = f`. 
 
 ## `Simulation`
 
@@ -282,11 +288,11 @@ Notes on `regions`:
 
 ### Methods <small>&ndash; user-defined</small>
 
-| Method | Default | Description |
-|:---|:---|:---|
-| `beforeTick()` | `null` | Called each tick before agents are updated. |
-| `afterTick()` | `null` | Called each tick after agents are updated. |
-| `stop()` | `null` | Called after each tick. If a truthy value is returned, the simulation ends: calling the `tick` or `run` methods does nothing. |
+| Method | Description |
+|:---|:---|
+| `beforeTick()` | Called each tick before agents are updated. |
+| `afterTick()`  | Called each tick after agents are updated. |
+| `stop()`       | Called after each tick. If a truthy value is returned, the simulation ends: calling the `tick` or `run` methods does nothing. |
 
 ## `Agent`
 
@@ -372,7 +378,7 @@ A round agent that can move.
 
 __Extends:__ [`Agent`](#agent).
 
-__Constructor:__ `new Actor(options = {})`, where `options` is passed to the [Agent](#agent) constructor as well as used to initialise the following actor properties:
+__Constructor:__ `new Actor(options = {})`, where `options` is passed to the [Agent](#agent) constructor as well as used to initialise the following properties and methods:
 
 &emsp;&emsp;`radius`<br>
 &emsp;&emsp;`mass`<br>
@@ -386,6 +392,9 @@ __Constructor:__ `new Actor(options = {})`, where `options` is passed to the [Ag
 &emsp;&emsp;`wrapX`<br>
 &emsp;&emsp;`wrapY`<br>
 &emsp;&emsp;`contains`<br>
+&emsp;&emsp;`updateRadius`<br>
+&emsp;&emsp;`updateMass`<br>
+&emsp;&emsp;`updatePointing`<br>
 
 ### Properties <small>&ndash; read only</small>
 

@@ -19,7 +19,7 @@ export class Agent {
     this.y           = options.y           ?? 0;
     this.state       = options.state       ?? {};
     this.history     = options.history     ?? {};
-    this.updateState = options.updateState ?? null;
+    if (options.updateState) this.updateState = options.updateState;
     this.bounceLog      = new XSet();
     this._simulation    = null;
     this._labels        = new Map();

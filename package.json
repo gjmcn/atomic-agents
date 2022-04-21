@@ -1,6 +1,6 @@
 {
   "name": "@gjmcn/atomic-agents",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Spatial Agent-based Modeling in JavaScript.",
   "type": "module",
   "main": "src/index.js",
