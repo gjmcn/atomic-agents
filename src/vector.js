@@ -51,14 +51,26 @@ export class Vector {
   }
 
   add(v) {
-    this.x += v.x;
-    this.y += v.y;
+    if (typeof v === 'number') {
+      this.x += v;
+      this.y += v;
+    }
+    else {
+      this.x += v.x;
+      this.y += v.y;
+    }
     return this;
   }
 
   sub(v) {
-    this.x -= v.x;
-    this.y -= v.y;
+    if (typeof v === 'number') {
+      this.x -= v;
+      this.y -= v;
+    }
+    else {
+      this.x -= v.x;
+      this.y -= v.y;
+    }
     return this;
   }
 

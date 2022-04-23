@@ -38,10 +38,22 @@ test('add', () => {
   ).toStrictEqual(new Vector(13, 24))
 });
 
+test('add number', () => {
+  expect(
+    (new Vector(3, 4)).add(5)
+  ).toStrictEqual(new Vector(8, 9))
+});
+
 test('sub', () => {
   expect(
     (new Vector(3, 4)).sub(new Vector(10, 20))
   ).toStrictEqual(new Vector(-7, -16))
+});
+
+test('sub number', () => {
+  expect(
+    (new Vector(3, 4)).sub(5)
+  ).toStrictEqual(new Vector(-2, -1))
 });
 
 test('mult', () => {

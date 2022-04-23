@@ -777,8 +777,8 @@ __Constructor:__ `new Vector(x = 0, y = 0)`.
 |:---|:---|:---|
 | `copy()` | Copy vector. | vector |
 | `set(x, y)` | Set x and y values of calling vector. Mutates calling vector. | vector |
-| `add(v)` | Vector addition: add `v` to calling vector. Mutates calling vector. | vector |
-| `sub(v)` | Vector subtraction: subtract `v` from calling vector. Mutates calling vector. | vector |
+| `add(u)` | Addition: add `u` to calling vector. Scalar addition if `u` is a number; vector addition otherwise. Mutates calling vector. | vector |
+| `sub(u)` | Subtraction: subtract `u` from calling vector. Scalar subtraction if `u` is a number; vector subtraction otherwise. Mutates calling vector. | vector |
 | `mult(s)` | Scalar multiplication: multiply x and y values of calling vector by `s`. Mutates calling vector. | vector |
 | `div(s)` | Scalar division: divide x and y values of calling vector by `s`. Mutates calling vector. | vector |
 | `dot(v)` | Dot product of the calling vector and `v` | number |

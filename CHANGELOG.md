@@ -1,3 +1,7 @@
+#### 0.1.2 &mdash; April 23, 2022
+
+* Vector `add` and `sub` methods: argument can be a number or an object.
+
 #### 0.1.1 &mdash; April 21, 2022
 
 * Allow passing `updateMass`, `updateRadius` and `updatePointing` as options to the `Actor` constructor.
