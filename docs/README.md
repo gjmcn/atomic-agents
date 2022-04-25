@@ -439,6 +439,7 @@ __Constructor:__ `new Actor(options = {})`, where `options` is passed to the [Ag
 | Method | Description | Return |
 |:---|:---|:---|
 | `squareOfCentroid()` | Get the square that the centroid of the calling actor is in. `actor.squareOfCentroid()` is equivalent to `sim.squareOf(actor.x, actor.y)`. | [square](#square) or `undefined` |
+| `insideDistance(otherAgent)` | If the calling actor is fully within `otherAgent`, returns the smallest distance between the agents' boundaries. Otherwise, the 'distance' is negative, and is measured from the boundary of `otherAgent` to the furthest point on the boundary of the calling actor which lies outside `otherAgent`. | number |
 | `nearest(k, filterFunction, type)` | For agents of the given `type` ( `'actor'`, `'square'` or `'zone'`) and that satisfy the `filterFunction`, get the `k` agents which are the shortest distance from the calling actor. `filterFunction` is passed a candidate agent and the calling actor; if the function returns a truthy value, the candidate may be included in the result. Use a falsy value for `filterFunction` if no filtering is required. Depending on `filterFunction` and `type`, and on the number of agents in the simulation, `nearest` may return fewer than `k` agents. | array |
 | `nearestFrom(k, candidates)` | As `nearest`, but `filterFunction` and `type` are replaced by `candidates`: an iterable of agents that the returned agents are selected from. | array |
 

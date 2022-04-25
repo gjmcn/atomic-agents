@@ -220,6 +220,10 @@ export class Actor extends Agent {
       return s;
     }
   }
+
+  insideDistance(otherAgent) {
+    return insideDistance(this, otherAgent);
+  }
   
   _insideNeighbors(maxDistance) {  // actor neighbors, no type parameter
     this._assertSimulation();

@@ -1,3 +1,9 @@
+#### 0.1.3 &mdash; April 25, 2022
+
+* Fix `insideDistance` bug [#4](https://github.com/gjmcn/atomic-agents/issues/4).
+
+* Add `insideDistance` method to `Actor`.
+
 #### 0.1.2 &mdash; April 23, 2022
 
 * Vector `add` and `sub` methods: argument can be a number or an object.

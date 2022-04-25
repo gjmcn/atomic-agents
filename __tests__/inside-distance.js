@@ -5,6 +5,8 @@ const c1 = circle(3, 6, 2);
 const c2 = circle(2.5, 5.5, 0.5);
 const c3 = circle(8, 5, 1);
 const c4 = circle(7, 6, Math.SQRT2);
+const c5 = circle(5.5, 2.5, 0.6);
+const c6 = circle(8, 1, 3);
 
 const r1 = rect(0, 6, 2, 9);
 
@@ -46,4 +48,14 @@ test('c3, r1: insideDistance', () => {
 test('c4, r1: insideDistance', () => {
   expect(insideDistance(c4, r1))
     .toBeCloseTo(-(1 + Math.SQRT2))
+});
+
+test('c5, r1: insideDistance', () => {
+  expect(insideDistance(c5, r1))
+    .toBeCloseTo(-0.1)
+});
+
+test('c6, r1: insideDistance', () => {
+  expect(insideDistance(c6, r1))
+    .toBeCloseTo(-(Math.sqrt(5) + 3))
 });
