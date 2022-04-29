@@ -839,6 +839,6 @@ The other `random` methods are:
 
 * `uniform_01()`: generate a number from a uniform distribution over `0` (inclusive) to `1` (exclusive). Unlike the above methods, `uniform_01` generates a number directly, i.e. it returns a number, not a function. Use `random.uniform_01()` instead of `Math.random()`.
 
-* `seed(s)`: if `s` is omitted (or is `undefined` or `null`), `Math.random` is used as the source of all random numbers. Alternatively, pass a seed `s` (a real number in the interval [0,1) or any integer) to use a linear congruential generator with the given seed &mdash; see [`d3.randomLcg`](https://github.com/d3/d3-random#randomLcg).
+* `seed(s)`: if `s` is omitted (or is `undefined` or `null`), `Math.random` is used as the source of all random numbers. Alternatively, pass a seed `s` (a real number in the interval [0,1)) to use a linear congruential generator with the given seed &mdash; see [`d3.randomLcg`](https://github.com/d3/d3-random#randomLcg).
 
 !> Many Atomic Agents methods use `random` internally. When using a seed, set it before any other simulation code runs to avoid confusion.
