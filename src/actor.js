@@ -18,22 +18,23 @@ export class Actor extends Agent {
 
   constructor(options = {}) {
     super(options);
-    this.type            = 'actor';
-    this._shape          = 'circle';
-    this.radius          = options.radius ?? 5;
-    this.mass            = options.mass === 'area' 
-                            ? Math.PI * this.radius ** 2
-                            : (options.mass ?? 1);
-    this.vel             = options.vel            ?? new Vector();
-    this.pointing        = options.pointing       ?? null;
-    this.maxSpeed        = options.maxSpeed       ?? 4;
-    this.maxForce        = options.maxForce       ?? Infinity;
-    this.steerMaxForce   = options.steerMaxForce  ?? Infinity;
-    this.still           = options.still          ?? false;
-    this.wrap            = options.wrap           ?? false;
-    this.wrapX           = options.wrapX          ?? false;
-    this.wrapY           = options.wrapY          ?? false;
-    this.contains        = options.contains       ?? null;
+    this.type          = 'actor';
+    this._shape        = 'circle';
+    this.zIndex        = options.zIndex ?? -Infinity;
+    this.radius        = options.radius ?? 5;
+    this.mass          = options.mass === 'area' 
+                          ? Math.PI * this.radius ** 2
+                          : (options.mass ?? 1);
+    this.vel           = options.vel            ?? new Vector();
+    this.pointing      = options.pointing       ?? null;
+    this.maxSpeed      = options.maxSpeed       ?? 4;
+    this.maxForce      = options.maxForce       ?? Infinity;
+    this.steerMaxForce = options.steerMaxForce  ?? Infinity;
+    this.still         = options.still          ?? false;
+    this.wrap          = options.wrap           ?? false;
+    this.wrapX         = options.wrapX          ?? false;
+    this.wrapY         = options.wrapY          ?? false;
+    this.contains      = options.contains       ?? null;
     if (options.updateMass)     this.updateMass     = options.updateMass;
     if (options.updateRadius)   this.updateRadius   = options.updateRadius;
     if (options.updatePointing) this.updatePointing = options.updatePointing;

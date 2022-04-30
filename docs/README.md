@@ -380,6 +380,7 @@ __Extends:__ [`Agent`](#agent).
 
 __Constructor:__ `new Actor(options = {})`, where `options` is passed to the [Agent](#agent) constructor as well as used to initialise the following properties and methods:
 
+&emsp;&emsp;`zIndex`<br>
 &emsp;&emsp;`radius`<br>
 &emsp;&emsp;`mass`<br>
 &emsp;&emsp;`vel`<br>
@@ -413,6 +414,7 @@ __Constructor:__ `new Actor(options = {})`, where `options` is passed to the [Ag
 
 | Property | Type | Default | Description |
 |:---|:---|:---|:---|
+| `zIndex` | number/falsy | `-Infinity` | Used by visualisation libraries &mdash; see [Atomic Agents Vis - Drawing Order](https://gjmcn.github.io/atomic-agents-vis/#/?id=drawing-order). |
 | `vel` | [vector](#vector) | `new Vector()` | Velocity. Can be set or mutated directly, but is more often modified via [forces](#forces) |
 | `pointing` | number | `null` | Pointing. Can be set directly, but is more often modified via an [`updatePointing`](#methods-ndash-user-defined-2) method.<br><br>__Note:__ use `actor.heading()` (i.e. angle of velocity) to get an actor's direction. `pointing` is typically only used for actors that are stationary, or moving in one direction but pointing in another. |
 | `maxSpeed` | number | `4` | Max speed. |
@@ -688,6 +690,12 @@ The width and height of grid squares is `sim.gridStep`.
 | `actors` | [xset](#xset) | Actors that currently overlap the square (in no specific order).|
 | `zones` | [xset](#xset) | Zones that currently overlap the square (in the order the zones were added to the simulation).
 
+### Properties <small>&ndash; read/write/mutate</small>
+
+| Property | Type | Default | Description |
+|:---|:---|:---|:---|
+| `zIndex` | number/falsy | `false` | Used by visualisation libraries &mdash; see [Atomic Agents Vis - Drawing Order](https://gjmcn.github.io/atomic-agents-vis/#/?id=drawing-order). |
+
 ### Methods <small>&ndash; proximity</small>
 
 | Method | Description | Return |
@@ -704,7 +712,7 @@ A rectangular region comprised of one or more contiguous squares.
 
 __Extends:__ [`Agent`](#agent).
 
-__Constructor:__ `new Zone(options)`, where the `options` object is passed to the [Agent](#agent) constructor. `options` should also contain an `indexLimits` property of grid indices that specify the zone's boundary; this can an iterable with elements `xMinIndex`, `xMaxIndex`, `yMinIndex`, `yMaxIndex`, or an object with these properties (simulation objects and zones have such properties).
+__Constructor:__ `new Zone(options)`, where the `options` object is passed to the [Agent](#agent) constructor. `options` should also contain an `indexLimits` property of grid indices that specify the zone's boundary; this can an iterable with elements `xMinIndex`, `xMaxIndex`, `yMinIndex`, `yMaxIndex`, or an object with these properties (simulation objects and zones have such properties). An initial `zIndex` value can also be passed in `options`. 
 
 ### Properties <small>&ndash; read only</small>
 
@@ -722,6 +730,12 @@ __Constructor:__ `new Zone(options)`, where the `options` object is passed to th
 | `squares` | [xset](#xset) | Squares in the zone (top-left to bottom-right, top row first, then second row, and so on). |
 
 ?> Note: if the zone is not in a simulation, `xMin`, `xMax`, `yMin`, `yMax` and `squares` are `null`, and `x` and `y` are meaningless.
+
+### Properties <small>&ndash; read/write/mutate</small>
+
+| Property | Type | Default | Description |
+|:---|:---|:---|:---|
+| `zIndex` | number/falsy | `-Infinity` | Used by visualisation libraries &mdash; see [Atomic Agents Vis - Drawing Order](https://gjmcn.github.io/atomic-agents-vis/#/?id=drawing-order). |
 
 ### Methods <small>&ndash; basic</small>
 

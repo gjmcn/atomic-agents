@@ -13,6 +13,7 @@ export class Square extends Agent {
     super(options);
     this.type   = 'square';
     this._shape = 'rect';
+    this.zIndex = options.zIndex ?? false;
     this.actors = new XSet();
     this.zones  = new XSet();
   }
