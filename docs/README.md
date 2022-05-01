@@ -414,7 +414,7 @@ __Constructor:__ `new Actor(options = {})`, where `options` is passed to the [Ag
 
 | Property | Type | Default | Description |
 |:---|:---|:---|:---|
-| `zIndex` | number/falsy | `-Infinity` | Used by visualisation libraries &mdash; see [Atomic Agents Vis - Drawing Order](https://gjmcn.github.io/atomic-agents-vis/#/?id=drawing-order). |
+| `zIndex` | number | `-Infinity` | Used by visualisation libraries &mdash; see [Atomic Agents Vis - Drawing Order](https://gjmcn.github.io/atomic-agents-vis/#/?id=drawing-order). |
 | `vel` | [vector](#vector) | `new Vector()` | Velocity. Can be set or mutated directly, but is more often modified via [forces](#forces) |
 | `pointing` | number | `null` | Pointing. Can be set directly, but is more often modified via an [`updatePointing`](#methods-ndash-user-defined-2) method.<br><br>__Note:__ use `actor.heading()` (i.e. angle of velocity) to get an actor's direction. `pointing` is typically only used for actors that are stationary, or moving in one direction but pointing in another. |
 | `maxSpeed` | number | `4` | Max speed. |
@@ -694,7 +694,7 @@ The width and height of grid squares is `sim.gridStep`.
 
 | Property | Type | Default | Description |
 |:---|:---|:---|:---|
-| `zIndex` | number/falsy | `false` | Used by visualisation libraries &mdash; see [Atomic Agents Vis - Drawing Order](https://gjmcn.github.io/atomic-agents-vis/#/?id=drawing-order). |
+| `zIndex` | number | `NaN` | Used by visualisation libraries &mdash; see [Atomic Agents Vis - Drawing Order](https://gjmcn.github.io/atomic-agents-vis/#/?id=drawing-order). |
 
 ### Methods <small>&ndash; proximity</small>
 
@@ -735,7 +735,7 @@ __Constructor:__ `new Zone(options)`, where the `options` object is passed to th
 
 | Property | Type | Default | Description |
 |:---|:---|:---|:---|
-| `zIndex` | number/falsy | `-Infinity` | Used by visualisation libraries &mdash; see [Atomic Agents Vis - Drawing Order](https://gjmcn.github.io/atomic-agents-vis/#/?id=drawing-order). |
+| `zIndex` | number | `-Infinity` | Used by visualisation libraries &mdash; see [Atomic Agents Vis - Drawing Order](https://gjmcn.github.io/atomic-agents-vis/#/?id=drawing-order). |
 
 ### Methods <small>&ndash; basic</small>
 
