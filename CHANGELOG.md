@@ -1,3 +1,7 @@
+#### 0.1.4 &mdash; May 2, 2022
+
+* Add `zIndex` property to agents.
+
 #### 0.1.3 &mdash; April 25, 2022
 
 * Fix `insideDistance` bug [#4](https://github.com/gjmcn/atomic-agents/issues/4).
