@@ -24,9 +24,9 @@ import {
 } from '../src/helpers';
 
 import { random } from '../src/random';
-random.seed(0.5);
 
 test('shuffle, 1', () => {
+  random.seed(0.5);
   expect(shuffle([51, 52, 53, 54, 55, 56, 57, 58, 59]))
     .toStrictEqual([56, 54, 58, 51, 55, 52, 53, 59, 57])
 });
@@ -99,5 +99,34 @@ test('assertNonnegativeInteger, 2', () => {
   expect(() => assertNonnegativeInteger(3.1, 'theValue'))
     .toThrow('theValue must be a non-negative integer')
 });
+
+test('roughlyEqual, 1', () => {
+  expect(roughlyEqual(5, 5.0001)).toBe(false);
+});
+test('roughlyEqual, 2', () => {
+  expect(roughlyEqual(5, 5 + 1e-12)).toBe(true);
+});
+
+test('assertAgentType, 1', () => {
+  expect(assertAgentType('actor')).toBe(undefined);
+});
+test('assertAgentType, 2', () => {
+  expect(() => assertAgentType('Actor')).toThrow('invalid agent type');
+});
+
+test('isIterable, 1', () => {
+  expect(isIterable([4, 5])).toBe(true);
+});
+test('isIterable, 2', () => {
+  expect(isIterable({u: 4, v: 5})).toBe(false);
+});
+
+test('randomElement, 1', () => {
+  random.seed(0.5);
+  const a = [];
+  for (let i = 0; i < 100; i++) a[i] = i * 10;
+  expect(randomElement(a)).toBe(730);
+});
+
 
 // !! NOT FINISHED !!

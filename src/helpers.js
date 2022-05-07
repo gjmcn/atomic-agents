@@ -63,7 +63,7 @@ export function assertNonnegativeInteger(k, name) {
   }
 }
 
-// Roughly equal to: true if numbers are within 10^-8 of each other.
+// Roughly equal to?
 export function roughlyEqual(u, v) {
   return Math.abs(u - v) < 1e-10; 
 }
