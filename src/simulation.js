@@ -624,28 +624,33 @@ export class Simulation {
     const { speed } = obj;    
     const inward = region === this ? 'true' : obj.inward;
 
-    // region is grid, square or zone:
-    // - no new force if actor entering and current velocity inward, or exiting
-    //   and velocity outward.
-    // - amplify bounce if computed is insufficient to prevent overlap next tick 
+    // region is grid, square or zone
     if (region._shape === 'rect') {
-      let dim, lim, overlap;
-      if ((dim = 'x', lim = -1, (overlap = region.xMin - actor.x + actor.radius) >= 0) ||
-          (           lim =  1, (overlap = actor.x + actor.radius - region.xMax) >= 0) ||
-          (dim = 'y', lim = -1, (overlap = region.yMin - actor.y + actor.radius) >= 0) ||
-          (           lim =  1, (overlap = actor.y + actor.radius - region.yMax) >= 0)) {
-        if (actor.vel[dim] * lim * (inward ? 1 : -1) <= 0) {
-          return;
-        }
-        const u = actor.vel.copy();
-        overlap = Math.abs(overlap);
-        const undoOverlap = Math.abs(u[dim]);
-        if (overlap > undoOverlap) {
-          u.mult(overlap / undoOverlap * 1.000001);
-        }   
-        u[dim] *= -1;
-        return u.sub(actor.vel);
+
+      const xOverlap = actor.x < region.x
+        ? actor.x + actor.radius - region.xMin
+        : region.xMax - (actor.x - actor.radius);
+      const yOverlap = actor.y < region.y
+        ? actor.y + actor.radius - region.yMin
+        : region.yMax - (actor.y - actor.radius);
+      if (xOverlap >= 2 * actor.radius && yOverlap >= 2 * actor.radius) {
+        return;
       }
+
+      // if outward, want to flip velocity on dim with least overlap; for
+      // inward, want dim with greatest 'outerlap' (which is least overlap!)
+      const dim = xOverlap >= yOverlap ? 'y' : 'x';
+
+      // no new force if inward and bounce would decrease alignment of velocity
+      // vector with actor->region vector; opposite for outward
+      if (actor.vel[dim] * (region[dim] - actor[dim]) * (inward ? 1 : -1) > 0) {
+        return;
+      }
+
+      const u = actor.vel.copy();
+      u[dim] *= -1;
+      return u.sub(actor.vel);
+
     }
 
     // region is actor; inward force

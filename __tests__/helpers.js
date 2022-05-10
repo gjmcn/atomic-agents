@@ -23,7 +23,6 @@ import {
   partitionRect
 } from '../src/helpers';
 
-import { XSet } from '../src/x-set';
 import { random } from '../src/random';
 import { Simulation } from '../src/simulation';
 import { Actor } from '../src/actor';

@@ -1,3 +1,7 @@
+#### 0.1.5 &mdash; May 10, 2022
+
+* Fix bounce bug [#6](https://github.com/gjmcn/atomic-agents/issues/6).
+
 #### 0.1.4 &mdash; May 2, 2022
 
 * Add `zIndex` property to agents.
