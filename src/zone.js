@@ -4,12 +4,20 @@
 
 import { XSet } from './x-set.js';
 import { assertAgentType, assertInteger, getOverlapping, getIndexLimits,
-  getLayer, partitionRect } from './helpers.js';
+  getLayer, partitionRect, setVisOptions } from './helpers.js';
 import { Agent } from "./agent.js";
 import { insideDistance } from "./inside-distance.js";
 import { regions } from './regions.js';
 
 export class Zone extends Agent {
+
+  static visOptions = new Set([...Agent.visOptions,
+    'textPosition',
+    'textPadding',
+    'tile',
+  ]);
+
+  static updatableVisOptions = Agent.updatableVisOptions;
 
   constructor(options = {}) {
     super(options);
@@ -36,6 +44,10 @@ export class Zone extends Agent {
     if (this.yMinIndex > this.yMaxIndex) {
       throw Error('yMinIndex cannot be greater than yMaxIndex');
     }
+  }
+
+  vis(obj = {}) {
+    return setVisOptions(this, Zone, obj);
   }
 
   addTo(simulation) {

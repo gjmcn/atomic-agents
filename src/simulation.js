@@ -7,7 +7,7 @@ import { XSet } from './x-set.js';
 import { Vector } from './vector.js';
 import {
   assertInteger, normalizeAngle, getIndexLimits, getLayer, gridInRect,
-  partitionRect, frame
+  partitionRect, frame, setVisOptions
 } from './helpers.js';
 import { Grid } from  './grid.js';
 import { centroidDistanceSqd } from './centroid-distance.js';
@@ -23,6 +23,19 @@ export class Simulation {
 
   static single = false;
   static _currentSimulation = null;
+  static visOptions = new Set([
+    'baseColor',
+    'baseAlpha',
+    'tint',
+    'alpha',
+    'sprite',
+    'tile'
+  ]);
+  static updatableVisOptions = new Set([
+    'tint',
+    'alpha',
+    'sprite'
+  ]);
 
   constructor(options = {}) {
     this.width                  = options.width                  ?? 300;
@@ -71,6 +84,11 @@ export class Simulation {
     else {
       Simulation._currentSimulation = null;
     }
+    // also: this._vis, this._visUpdates and this._interaction set by this.vis
+  }
+
+  vis(obj = {}) {
+    return setVisOptions(this, Simulation, obj);
   }
 
   _addAgent(agent) {

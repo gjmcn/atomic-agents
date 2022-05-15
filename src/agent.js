@@ -13,6 +13,36 @@ import { gridInRect, gridInHex } from './helpers.js';
 import { randomCircles } from './random-circles.js';
 
 export class Agent {
+
+  static visOptions = new Set([
+    'tint',
+    'alpha',
+    'sprite',
+    'text',
+    'textAlign',
+    'textTint',
+    'textAlpha',
+    'fontName',
+    'fontSize',
+    'advanced',
+    'lineColor',
+    'lineAlpha',
+    'lineWidth',
+    'lineAlign',
+    'fillColor',
+    'fillAlpha',
+  ]);
+
+  static updatableVisOptions = new Set([
+    'tint',
+    'alpha',
+    'sprite',
+    'text',
+    'textTint',
+    'textAlpha',
+    'fontName',
+    'fontSize',
+  ]);
   
   constructor(options = {}) {
     this.x           = options.x       ?? 0;
@@ -25,6 +55,8 @@ export class Agent {
     this._labels        = new Map();
     this._resetOnRemove = null; 
     this.__agent        = true;
+    // also: this._vis, this._visUpdates and this._interaction set by vis method
+    //       of agent subtypes
   }
 
   _validateSimulation(simulation) {

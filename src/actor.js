@@ -6,7 +6,7 @@ import { random } from './random.js';
 import { XSet } from './x-set.js';
 import { Vector } from './vector.js';
 import { assertAgentType, assertInteger, assertPositiveInteger, getOverlapping,
-  roughlyEqual, moduloShift, getLayer } from './helpers.js';
+  roughlyEqual, moduloShift, getLayer, setVisOptions } from './helpers.js';
 import { Agent } from "./agent.js";
 import { overlap } from './overlap.js';
 import { nearestFrom } from './from-functions.js';
@@ -15,6 +15,15 @@ import { insideDistance } from "./inside-distance.js";
 import { regions } from './regions.js';
 
 export class Actor extends Agent {
+
+  static visOptions = new Set([...Agent.visOptions,
+    'textRotate',
+    'textMaxWidth',
+    'basicCircleRadius',
+    'advancedCircleScale',
+  ]);
+
+  static updatableVisOptions = Agent.updatableVisOptions;
 
   constructor(options = {}) {
     super(options);
@@ -50,6 +59,10 @@ export class Actor extends Agent {
     this._yChange = 0;
     this.containsCurrent = null;
     // also: this._contains, set by this.contains setter
+  }
+
+  vis(obj = {}) {
+    return setVisOptions(this, Actor, obj);
   }
 
   _assertPositiveProp(prop) {

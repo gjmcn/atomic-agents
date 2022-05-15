@@ -117,6 +117,43 @@ export function getOverlapping(squares, type, omitThis) {
   return r;
 }
 
+// Set vis options for simulation or agent.
+const interactionEvents = new Set([
+  'click',
+  'pointercancel',
+  'pointerdown',
+  'pointermove',
+  'pointerout',
+  'pointerover',
+  'pointertap',
+  'pointerup',
+  'pointerupoutside'
+]);
+export function setVisOptions(a, cls, ops) {
+  if (a._vis) throw Error('can only set vis options once');
+  for (let [key, value] of Object.entries(ops)) {
+    if (interactionEvents.has(key.toLowerCase())) {
+      if (typeof value !== 'function') {
+        throw Error(`interaction option "${key}": function expected`);
+      }
+      (a._interaction ??= new Map()).set(key.toLowerCase(), value);
+    }
+    else if (typeof value === 'function') {
+      if (!cls.updatableVisOptions.has(key)) {
+        throw Error(`"${key}" is not an updatable vis option`);
+      }
+      (a._visUpdates ??= new Map()).set(key, value);
+    }
+    else {
+      if (!cls.visOptions.has(key)) {
+        throw Error(`"${key}" is not a vis option`);
+      }
+      (a._vis ??= new Map()).set(key, value);
+    }
+  }
+  return a;
+}
+
 // Returns r = p + mq, such that: 0 <= r < q (so assumes q > 0).
 export function moduloShift(p, q) {
   return p < 0 || p >= q
