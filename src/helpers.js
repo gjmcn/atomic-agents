@@ -136,13 +136,13 @@ export function setVisOptions(a, cls, ops) {
       if (typeof value !== 'function') {
         throw Error(`interaction option "${key}": function expected`);
       }
-      (a._interaction ??= new Map()).set(key.toLowerCase(), value);
+      (a._interaction ??= new Map()).set(key.toLowerCase(), value.bind(a));
     }
     else if (typeof value === 'function') {
       if (!cls.updatableVisOptions.has(key)) {
         throw Error(`"${key}" is not an updatable vis option`);
       }
-      (a._visUpdates ??= new Map()).set(key, value);
+      (a._visUpdates ??= new Map()).set(key, value.bind(a));
     }
     else {
       if (!cls.visOptions.has(key)) {

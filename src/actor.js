@@ -18,9 +18,7 @@ export class Actor extends Agent {
 
   static visOptions = new Set([...Agent.visOptions,
     'textRotate',
-    'textMaxWidth',
-    'basicCircleRadius',
-    'advancedCircleScale',
+    'textMaxWidth'
   ]);
 
   static updatableVisOptions = Agent.updatableVisOptions;

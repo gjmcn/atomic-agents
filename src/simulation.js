@@ -26,6 +26,7 @@ export class Simulation {
   static visOptions = new Set([
     'baseColor',
     'baseAlpha',
+    'background',
     'tint',
     'alpha',
     'sprite',
