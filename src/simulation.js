@@ -46,9 +46,9 @@ export class Simulation {
     this.history                = options.history                ?? {};
     this.updateMassesAndRadii   = options.updateMassesAndRadii   ?? true;
     this.updatePointings        = options.updatePointings        ?? true;
-    this.updateActorStates      = options.updatePointings        ?? true;
-    this.updateSquareStates     = options.updatePointings        ?? true;
-    this.updateZoneStates       = options.updatePointings        ?? true;
+    this.updateActorStates      = options.updateActorStates      ?? true;
+    this.updateSquareStates     = options.updateSquareStates     ?? true;
+    this.updateZoneStates       = options.updateZoneStates       ?? true;
     this.applyInteractionForces = options.applyInteractionForces ?? true;
     this.applySteeringForces    = options.applySteeringForces    ?? true;
     this.applyContainers        = options.applyContainers        ?? true;
