@@ -1,3 +1,11 @@
+#### 0.1.6 &mdash; ??????
+
+* Add vis methods.
+
+* Additional update properties: `updateActorStates`, `updateSquareStates` and `updateZoneStates`.
+
+* All update properties `true` by default.
+
 #### 0.1.5 &mdash; May 10, 2022
 
 * Fix bounce bug [#6](https://github.com/gjmcn/atomic-agents/issues/6).

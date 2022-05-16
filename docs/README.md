@@ -176,6 +176,9 @@ __Constructor:__ `new Simulation(options = {})`, where `options` can be used to 
 &emsp;&emsp;`history`<br>
 &emsp;&emsp;`updateMassesAndRadii`<br>
 &emsp;&emsp;`updatePointings`<br>
+&emsp;&emsp;`updateActorStates`<br>
+&emsp;&emsp;`updateSquareStates`<br>
+&emsp;&emsp;`updateZoneStates`<br>
 &emsp;&emsp;`applyInteractionForces`<br>
 &emsp;&emsp;`applySteeringForces`<br>
 &emsp;&emsp;`applyContainers`<br>
@@ -215,12 +218,15 @@ These properties can be set when creating a simulation, and set/mutated when it 
 | `state` | any | `{}` |  See [State and History](#state-and-history). |
 | `history` | any | `{}` | See [State and History](#state-and-history). |
 | `interaction` | map | `new Map()` | [Interaction forces](#interaction-forces); use map methods to add/delete forces. |
-| `updateMassesAndRadii` | boolean | `true` | Update actors' masses and radii. |
-| `updatePointings` | boolean | `false` | Update actors' pointings. |
-| `applyInteractionForces` | boolean | `true` | Apply [interaction forces](#interaction-forces).  |
-| `applySteeringForces` | boolean | `true` | Apply [steering forces](#steering-forces). |
+| `updateMassesAndRadii` | boolean | `true` | Update actors' masses and radii each tick. |
+| `updatePointings` | boolean | `true` | Update actors' pointings each tick. |
+| `updateActorStates` | boolean | `true` | Update actors' states each tick. |
+| `updateSquareStates` | boolean | `true` | Update squares' states each tick. |
+| `updateZoneStates` | boolean | `trus` | Update zones' states each tick. |
+| `applyInteractionForces` | boolean | `true` | Apply [interaction forces](#interaction-forces) each tick.  |
+| `applySteeringForces` | boolean | `true` | Apply [steering forces](#steering-forces) each tick. |
 
-?> Note: `updateMassesAndRadii`, `updatePointings`, `applyInteractionForces` and `applySteeringForces` can be used to suspend all updates/forces of a given type, or to avoid unnecessary computation when the relevant updates/forces are not used at all in the simulation.
+?> Note: the `update...` and `apply...` properties can be used to suspend all updates/forces of a given type, or to avoid unnecessary computation when the relevant updates/forces are not used at all in the simulation. 
 
 ?> Note: if both `applyInteractionForces` and `applySteeringForces` are `false`, actors will not undergo any velocity-based movement, even if their current speed is nonzero.
 
@@ -459,7 +465,7 @@ Notes:
 |:---|:---|
 | `updateRadius(sim)` | Returns the new radius. |
 | `updateMass(sim)` | Returns the new mass. If `updateMass` is the string `'area'` rather than a function, the actor's mass is adjusted automatically when the radius changes so that the mass always equals the actor's area. (Remember to also set `mass` to `'area'` when creating the actor). |
-| `updatePointing(sim)` | Returns the new pointing; automatically normalized to lie between 0 (inclusive) and 2π (exclusive).<br><br>__Note:__ `sim.updatePointings` is `false` by default. The `updatePointing` method of an actor is only called when `sim.updatePointings` is `true`. |
+| `updatePointing(sim)` | Returns the new pointing; automatically normalized to lie between 0 (inclusive) and 2π (exclusive). |
 
 ### Forces
 

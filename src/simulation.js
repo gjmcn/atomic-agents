@@ -45,7 +45,10 @@ export class Simulation {
     this.state                  = options.state                  ?? {};
     this.history                = options.history                ?? {};
     this.updateMassesAndRadii   = options.updateMassesAndRadii   ?? true;
-    this.updatePointings        = options.updatePointings        ?? false;
+    this.updatePointings        = options.updatePointings        ?? true;
+    this.updateActorStates      = options.updatePointings        ?? true;
+    this.updateSquareStates     = options.updatePointings        ?? true;
+    this.updateZoneStates       = options.updatePointings        ?? true;
     this.applyInteractionForces = options.applyInteractionForces ?? true;
     this.applySteeringForces    = options.applySteeringForces    ?? true;
     this.applyContainers        = options.applyContainers        ?? true;
@@ -261,9 +264,15 @@ export class Simulation {
     }
 
     // update states
-    for (let agent of this.actors)  agent.updateState?.(this);
-    for (let agent of this.squares) agent.updateState?.(this);
-    for (let agent of this.zones)   agent.updateState?.(this);
+    if (this.updateActorStates) {
+      for (let agent of this.actors)  agent.updateState?.(this);
+    }
+    if (this.updateSquareStates) {
+      for (let agent of this.squares) agent.updateState?.(this);
+    }
+    if (this.updateZoneStates) {
+      for (let agent of this.zones)   agent.updateState?.(this);
+    }
 
     // call afterTick
     this.afterTick?.();
