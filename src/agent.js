@@ -17,7 +17,7 @@ export class Agent {
   static visOptions = new Set([
     'tint',
     'alpha',
-    'sprite',
+    'image',
     'text',
     'textAlign',
     'textTint',
@@ -36,7 +36,7 @@ export class Agent {
   static updatableVisOptions = new Set([
     'tint',
     'alpha',
-    'sprite',
+    'image',
     'text',
     'textTint',
     'textAlpha',

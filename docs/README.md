@@ -222,7 +222,7 @@ These properties can be set when creating a simulation, and set/mutated when it 
 | `updatePointings` | boolean | `true` | Update actors' pointings each tick. |
 | `updateActorStates` | boolean | `true` | Update actors' states each tick. |
 | `updateSquareStates` | boolean | `true` | Update squares' states each tick. |
-| `updateZoneStates` | boolean | `trus` | Update zones' states each tick. |
+| `updateZoneStates` | boolean | `true` | Update zones' states each tick. |
 | `applyInteractionForces` | boolean | `true` | Apply [interaction forces](#interaction-forces) each tick.  |
 | `applySteeringForces` | boolean | `true` | Apply [steering forces](#steering-forces) each tick. |
 

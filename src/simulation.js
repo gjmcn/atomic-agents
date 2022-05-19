@@ -29,13 +29,13 @@ export class Simulation {
     'background',
     'tint',
     'alpha',
-    'sprite',
+    'image',
     'tile'
   ]);
   static updatableVisOptions = new Set([
     'tint',
     'alpha',
-    'sprite'
+    'image'
   ]);
 
   constructor(options = {}) {
