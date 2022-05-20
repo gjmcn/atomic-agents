@@ -122,7 +122,6 @@ const interactionEvents = new Set([
   'click',
   'pointercancel',
   'pointerdown',
-  'pointermove',
   'pointerout',
   'pointerover',
   'pointertap',
