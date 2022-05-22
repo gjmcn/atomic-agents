@@ -1,4 +1,4 @@
-#### 0.1.6 &mdash; ??????
+#### 0.1.6 &mdash; May 22, 2022
 
 * Add vis methods.
 
