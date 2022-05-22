@@ -129,7 +129,9 @@ const interactionEvents = new Set([
   'pointerupoutside'
 ]);
 export function setVisOptions(a, cls, ops) {
-  if (a._vis) throw Error('can only set vis options once');
+  if (a._vis || a._visUpdates  || a._interaction) {
+    throw Error('can only set vis options once');
+  }
   for (let [key, value] of Object.entries(ops)) {
     if (interactionEvents.has(key.toLowerCase())) {
       if (typeof value !== 'function') {
