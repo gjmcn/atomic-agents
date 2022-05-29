@@ -7,7 +7,7 @@ import { XSet } from './x-set.js';
 import { Vector } from './vector.js';
 import {
   assertInteger, normalizeAngle, getIndexLimits, getLayer, gridInRect,
-  partitionRect, frame, setVisOptions
+  partitionRect, frame, setVisOptions, isIterable
 } from './helpers.js';
 import { Grid } from  './grid.js';
 import { centroidDistanceSqd } from './centroid-distance.js';
@@ -901,6 +901,14 @@ export class Simulation {
     }
   }
 
+  _lineAttract(obj) {
+    this._lineAttractRepel(obj);
+  }
+
+  _lineRepel(obj) {
+    this._lineAttractRepel(obj);
+  }
+
   _insideForce(obj) {
     
     let [g1, g2] = this._getForcesGroups(obj);
@@ -950,6 +958,104 @@ export class Simulation {
 
   _drag(obj) {
     this._insideForce(obj);
+  }
+
+  _pointInGrid(p) {
+    return p.x >= this.xMin &&
+           p.x <= this.xMax &&
+           p.y >= this.yMin &&
+           p.y <= this.yMax;
+  }
+
+
+  // ========== process polylines ==========
+
+  // get a function that takes a point (i.e. an object with x and y properties)
+  // and returns information about the nearest point on the given polylines (an
+  // object with the same structure as returned by polyline.pointNearest, but
+  // with a line property added) or null if no polyline is close according to
+  // off
+  // - polylines argument can be a singe polyline or an iterable of polylines
+  // - off is distance above which do not consider point to be close
+  // - when using the returned function, the passed point must be in the grid
+  //   (i.e. its x,y must be in the grid) or it must be an actor in the
+  //   simulation that overlaps the grid
+  registerPolylines(polylines, off = Infinity) {
+
+    if (!isIterable(polylines)) polylines = [polylines];
+    
+    for (let line of polylines) {
+      for (let pt of line.pts) {
+        if (!this._pointInGrid(pt)) {
+          throw Error('polylines must lie within the simulation grid');
+        }
+      }
+    }
+
+    // squareSegs is an array-of-arrays (same shape as grid): for each square,
+    // squareSegs has an array of {line, segIndex, dist} objects (the segments
+    // that may contain the closest point to some point in the square) - the
+    // array is empty if no segments are close according to the value of off
+    const halfDiag = Math.sqrt(2 * this.gridStep ^ 2) / 2;
+    const squareSegs = this._grid.squares.map(row => {
+      row.map(sq => {
+        const candidateSegs = [];
+        let minDist = Infinity;
+        for (let line of polylines) {
+          for (let segIndex of line.segs.keys()) {
+            const dist = line._distanceFromSeg(sq, segIndex);
+            // if the segment does not overlap the square, dist - halfDiag is a
+            // lower bound on the min distance from any point in the square to
+            // the segment
+            if (dist - halfDiag <= off) {
+              minDist = Math.min(dist, minDist);
+              candidateSegs.push({line, segIndex, dist});
+            }
+          }
+        }
+        // minDist + halfDiag is an upper bound on the distance from any point
+        // in the square to the segment corresponding to minDist
+        return candidateSegs.filter(obj => obj.dist < minDist + halfDiag);
+      });
+    });
+
+    // return a function
+    return p => {
+      let sq;
+      if (this._pointInGrid(p)) {
+        sq = this.squareOf(p.x, p.y);
+      }
+      else if (this.actors.has(p) && p.overlappingGrid) {
+        let minDistToSq = Infinity;
+        for (let s of p.squares) {
+          const dist = p.centroidDistance(s);
+          if (dist < minDistToSq) {
+            minDistToSq = dist;
+            sq = s;
+          }
+        }
+      }
+      else {
+        return null;
+      }
+      const candidateSegs = squareSegs[sq.yIndex][sq.xIndex];
+      if (candidateSegs.length === 0) return null;
+      let minDist = Infinity;
+      let best;
+      let bestLine;
+      for (let {line, segIndex} of candidateSegs) { 
+        const pn = line._pointNearestOnSeg(p, segIndex);
+        if (pn.dist < minDist) {
+          minDist = pn.dist;
+          best = pn;
+          bestLine = line;
+        }
+      }
+      if (minDist > off) return null;
+      best.line = bestLine;
+      return best;
+    };
+
   }
 
   
