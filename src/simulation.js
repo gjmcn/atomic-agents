@@ -901,14 +901,6 @@ export class Simulation {
     }
   }
 
-  _lineAttract(obj) {
-    this._lineAttractRepel(obj);
-  }
-
-  _lineRepel(obj) {
-    this._lineAttractRepel(obj);
-  }
-
   _insideForce(obj) {
     
     let [g1, g2] = this._getForcesGroups(obj);
