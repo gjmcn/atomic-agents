@@ -41,7 +41,7 @@ export class Polyline {
     // index at equal intervals of this_step along the line; the last entry of
     // this._intervals corresponds to the point one step before the line's end
     if (this.segs.length > 3) {
-      const n = Math.min(this.segs.length, 100);
+      const n = Math.min(this.segs.length, 200);
       this._step = this.lineLength / n;
       this._intervals = [];
       let segIndex = 0;
