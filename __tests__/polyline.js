@@ -43,7 +43,7 @@ test('constructor, 2', () => {
   expect(p2.lineLength).toBeCloseTo(8.8072);
   expect(p2._step).toBeCloseTo(8.8072 / 4);
   expect(p2._intervals).toStrictEqual([0, 0, 1, 3]);
-})
+});
 
 test('pointAt, 1', () => {
   const {x, y} = p1.pointAt(0);
@@ -79,6 +79,22 @@ test('pointAt, 7', () => {
   const {x, y} = p2.pointAt(p2.lineLength);
   expect(x).toBeCloseTo(1);
   expect(y).toBeCloseTo(3);
+});
+
+test('walk, 1', () => {
+  const pts = p1.walk(4).pts;
+  const step = p1.lineLength / 3;
+  const pt1 = p1.pointAt(step);
+  const pt2 = p1.pointAt(2 * step);
+  expect(pts.length).toBe(4);
+  expect(pts[0].x).toBeCloseTo(1);
+  expect(pts[0].y).toBeCloseTo(3);
+  expect(pts[1].x).toBeCloseTo(pt1.x);
+  expect(pts[1].y).toBeCloseTo(pt1.y);
+  expect(pts[2].x).toBeCloseTo(pt2.x);
+  expect(pts[2].y).toBeCloseTo(pt2.y);
+  expect(pts[3].x).toBeCloseTo(3);
+  expect(pts[3].y).toBeCloseTo(2);
 });
 
 test('pointAtFrac, 1', () => {
@@ -125,10 +141,11 @@ test('pointNearest, 3', () => {
   expect(dist).toBeCloseTo(0.7071);
 });
 test('pointNearest, 4', () => {
-  const {point, param, dist} = p1.pointNearest({x: 4, y: 2});
+  const {point, param, segIndex, dist} = p1.pointNearest({x: 4, y: 2});
   const {x, y} = point;
   expect(x).toBeCloseTo(3.5);
   expect(y).toBeCloseTo(1.5);
   expect(param).toBeCloseTo(p1.segLengthsCumu[2] + 0.5 * p1.segLengths.at(-1));
+  expect(segIndex).toBe(2);
   expect(dist).toBeCloseTo(0.7071);
 });
