@@ -24,7 +24,6 @@ test('constructor, 1', () => {
       new Vector(4, 1),
       new Vector(3, 2),
     ]);
-  expect(p1.closed).toBe(false);
   expect(p1.segs)
     .toStrictEqual([
       new Vector(1.5, -3),
@@ -39,7 +38,6 @@ test('constructor, 1', () => {
 });
 
 test('constructor, 2', () => {
-  expect(p2.closed).toBe(true);
   expect(p2.lineLength).toBeCloseTo(8.8072);
   expect(p2._step).toBeCloseTo(8.8072 / 4);
   expect(p2._intervals).toStrictEqual([0, 0, 1, 3]);
@@ -66,12 +64,12 @@ test('pointAt, 4', () => {
   expect(y).toBeCloseTo(0.5);
 });
 test('pointAt, 5', () => {
-  const {x, y} = p2.pointAt(p2.lineLength + 4.25549);
+  const {x, y} = p2.pointAt(p2.lineLength + 4.25549, true);
   expect(x).toBeCloseTo(3.25);
   expect(y).toBeCloseTo(0.5);
 });
 test('pointAt, 6', () => {
-  const {x, y} = p2.pointAt(-p2.lineLength + 4.25549);
+  const {x, y} = p2.pointAt(-p2.lineLength + 4.25549, true);
   expect(x).toBeCloseTo(3.25);
   expect(y).toBeCloseTo(0.5);
 });
@@ -103,16 +101,17 @@ test('pointAtFrac, 1', () => {
   expect(y).toBeCloseTo(0.5);
 });
 test('pointAtFrac, 2', () => {
-  const {x, y} = p2.pointAtFrac((p2.lineLength + 4.25549) / p2.lineLength);
+  const {x, y} =
+    p2.pointAtFrac((p2.lineLength + 4.25549) / p2.lineLength, true);
   expect(x).toBeCloseTo(3.25);
   expect(y).toBeCloseTo(0.5);
 });
 test('pointAtFrac, 3', () => {
-  const {x, y} = p2.pointAtFrac((-p2.lineLength + 4.25549) / p2.lineLength);
+  const {x, y} =
+    p2.pointAtFrac((-p2.lineLength + 4.25549) / p2.lineLength, true);
   expect(x).toBeCloseTo(3.25);
   expect(y).toBeCloseTo(0.5);
 });
-
 
 test('pointNearest, 1', () => {
   const {point, param, scaProjec, dist} = p1.pointNearest({x: 0.5, y: 5.5});

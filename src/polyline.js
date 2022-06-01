@@ -17,12 +17,6 @@ export class Polyline {
     this.pts = points.map(pt => {
       return Vector[Array.isArray(pt) ? 'fromArray' : 'fromObject'](pt);
     });
-
-    // closed?
-    const first = this.pts[0];
-    const last = this.pts.at(-1);
-    this.closed = first === last ||
-      roughlyEqual(Math.hypot(first.x - last.x, first.y - last.y), 0);
   
     // segments, segment lengths, cumulative lengths and line length
     this.segs = [];
@@ -56,12 +50,12 @@ export class Polyline {
 
   // simplify
   simplify(tolerance, highQuality) {
-    return simplify(this, tolerance, highQuality);
+    return new Polyline(simplify(this.pts, tolerance, highQuality));
   }
 
   // get point on line at curve parameter t; returns a vector
-  pointAt(t) {
-    if (this.closed) t = moduloShift(t, this.lineLength);
+  pointAt(t, wrap) {
+    if (wrap) t = moduloShift(t, this.lineLength);
     else if (t <= 0) return this.pts[0].copy();
     else if (t >= this.lineLength) return this.pts.at(-1).copy();
     let segIndex = this._intervals
@@ -75,8 +69,8 @@ export class Polyline {
   }
 
   // as pointAt, but based on curve parameter that runs from 0 to 1
-  pointAtFrac(t) {
-    return this.pointAt(t * this.lineLength);
+  pointAtFrac(t, wrap) {
+    return this.pointAt(t * this.lineLength, wrap);
   }
 
   // sample at n equally spaced points along the polyline; returns a polyline
