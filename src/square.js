@@ -27,10 +27,14 @@ export class Square extends Agent {
     this.zones  = new XSet();
   }
 
+  get checker() {
+    return this.xIndex % 2 ^ this.yIndex % 2;
+  }
+
   vis(obj = {}) {
     return setVisOptions(this, Square, obj);
   }
-
+  
   remove() {
     throw Error('square agents cannot be removed from a simulation');
   }

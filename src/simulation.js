@@ -988,9 +988,9 @@ export class Simulation {
     // squareSegs has an array of {line, segIndex, dist} objects (the segments
     // that may contain the closest point to some point in the square) - the
     // array is empty if no segments are close according to the value of off
-    const halfDiag = Math.sqrt(2 * this.gridStep ^ 2) / 2;
+    const halfDiag = Math.sqrt(2 * this.gridStep ** 2) / 2;
     const squareSegs = this._grid.squares.map(row => {
-      row.map(sq => {
+      return row.map(sq => {
         const candidateSegs = [];
         let minDist = Infinity;
         for (let line of polylines) {

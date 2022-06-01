@@ -5,6 +5,7 @@ export {
 }                     from './helpers.js';
 export { XSet }       from './x-set.js';
 export { Vector }     from './vector.js';
+export { Polyline }   from './polyline.js';
 export { Simulation } from './simulation.js';
 export { Actor }      from './actor.js';
 export { Square }     from './square.js';

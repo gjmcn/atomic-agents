@@ -141,7 +141,7 @@ export class Polyline {
       const pt = this.pts[segIndex + 1];
       return Math.hypot(p.x - pt.x, p.y - pt.y);
     }
-    return pShift.scaRejec(seg);
+    return Math.abs(pShift.scaRejec(seg));
   }
 
   // point on polyline (or only from segments listed in segIndices) nearest to p
