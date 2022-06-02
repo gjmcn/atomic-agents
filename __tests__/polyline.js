@@ -24,6 +24,8 @@ test('constructor, 1', () => {
       new Vector(4, 1),
       new Vector(3, 2),
     ]);
+  expect([p1.xMin, p1.xMax, p1.yMin, p1.yMax, p1.x, p1.y])
+    .toStrictEqual([1, 4, 0, 3, 2.5, 1.5]);
   expect(p1.segs)
     .toStrictEqual([
       new Vector(1.5, -3),

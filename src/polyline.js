@@ -12,13 +12,23 @@ export class Polyline {
   // properties
   constructor(points) {
 
-    // points
+    // public properties
     if (points.length < 2) throw Error('at least two points expected');
-    this.pts = points.map(pt => {
-      return Vector[Array.isArray(pt) ? 'fromArray' : 'fromObject'](pt);
-    });
-  
-    // segments, segment lengths, cumulative lengths and line length
+    this.xMin = Infinity;
+    this.xMax = -Infinity;
+    this.yMin = Infinity;
+    this.yMax = -Infinity;
+    this.pts = [];
+    for (let pt of points) {
+      pt = Vector[Array.isArray(pt) ? 'fromArray' : 'fromObject'](pt);
+      this.pts.push(pt);
+      if (pt.x < this.xMin) this.xMin = pt.x;
+      if (pt.x > this.xMax) this.xMax = pt.x;
+      if (pt.y < this.yMin) this.yMin = pt.y;
+      if (pt.y > this.yMax) this.yMax = pt.y;
+    }
+    this.x = (this.xMax + this.xMin) / 2;
+    this.y = (this.yMax + this.yMin) / 2;
     this.segs = [];
     this.segLengths = [];
     this.segLengthsCumu = [0];
@@ -46,6 +56,27 @@ export class Polyline {
       }
     }
   
+  }
+
+  // transform: scale and rotate about firt point, then shift
+  transform({ scale = 1, shift = [0, 0], rotate = 0 }) {
+    if (scale === 1 && rotate === 0) {
+      return new Polyline(this.pts.map(pt => {
+        return [pt.x + shift[0], pt.y + shift[1]];
+      }));
+    }
+    const base = this.pts[0];
+    const newBase = base.copy().add(Vector.fromArray(shift));
+    const newPoints = [newBase];
+    for (let i = 1; i < this.pts.length; i++) {
+      const pt = this.pts[i].copy().sub(base);
+      if (!pt.isZero()) {
+        if (rotate) pt.turn(rotate);
+        if (scale !== 1) pt.mult(scale);
+      }
+      newPoints.push(pt.add(newBase));
+    };
+    return new Polyline(newPoints);
   }
 
   // simplify
