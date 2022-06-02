@@ -58,15 +58,15 @@ export class Polyline {
   
   }
 
-  // transform: scale and rotate about firt point, then shift
-  transform({ scale = 1, shift = [0, 0], rotate = 0 }) {
+  // transform: scale and rotate about firt point, then translate
+  transform({ scale = 1, translate = [0, 0], rotate = 0 }) {
     if (scale === 1 && rotate === 0) {
       return new Polyline(this.pts.map(pt => {
-        return [pt.x + shift[0], pt.y + shift[1]];
+        return [pt.x + translate[0], pt.y + translate[1]];
       }));
     }
     const base = this.pts[0];
-    const newBase = base.copy().add(Vector.fromArray(shift));
+    const newBase = base.copy().add(Vector.fromArray(translate));
     const newPoints = [newBase];
     for (let i = 1; i < this.pts.length; i++) {
       const pt = this.pts[i].copy().sub(base);
