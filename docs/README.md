@@ -154,6 +154,7 @@ Atomic Agents exports the following:
 * [`Actor`](#actor), [`Square`](#square), [`Zone`](#zone): agent classes.
 * [`XSet`](#xset): subclass of JavaScript's `Set` with extra methods.
 * [`Vector`](#vector): 2D vector class.
+* [`Polyline`](#polyline): 2D polyline class.
 * [`random`](#random): functions for generating random numbers.
 * [Helper functions](#helpers).
 
@@ -257,6 +258,7 @@ Static properties are accessed via the `Simulation` class itself. E.g. `Simulati
 | `randomX(padding)` | Random value between 0 (inclusive) and `sim.width` (exclusive). If `padding` is used, the returned value is at least `padding` from 0 and `sim.width`. | number |
 | `randomY(padding)` | Random value between 0 (inclusive) and `sim.height` (exclusive). If `padding` is used, the returned value is at least `padding` from 0 and `sim.height`. | number |
 | `frame(period, steps)` | `sim.frame(period, steps)` is equivalent to `frame(period, steps, sim.tickIndex)`. See [`frame`](#helpers) for details. | number |
+| `registerPolylines(`<br>&emsp;` polylines, off = Infinity)` | `polylines` should be a single [polyline](#polyline) or an iterable of polylines; `off` is the distance above which points are not considered close to polylines. Returns a function that takes a 'point' (an object with `x` and `y` properties) and returns an object with information about the nearest point on any of the polylines: a `line` property containing the polyline of the nearest point, and all the properties returned by the [`pointNearest`](#methods-ndash-instance-2) polyline method.<br><br>__Note:__ the returned function returns `null` when passed a point that is outside the simulation grid (or for an actor, does not overlap the grid) or if the point is greater than `off` from the polylines. | function |
 | `paths(destinations,`<br>&emsp;` costs = [], taxicab)` | Computes shortest paths &mdash; see [Go Behavior](#go-behavior). | map |
 | `fitGrid(options = {})` | Generate grid points in simulation grid. `sim.fitGrid(options)` is equivalent to `gridInRect(sim, options)` &mdash; see [`gridInRect`](#helpers). | array |
 | `randomCircles(options = {})` | Generate random circles (i.e. objects wth properties `x`, `y` and `radius`) that fit within the simulation grid. `options` is an object; valid properties and their defaults are:<ul style="margin:0"><li>`n = 1`: number of circles; not used if both `nMax` and `nMin` are used.</li><li>`nMax = n`: max number of circles; use `Infinity` to get as many as possible &mdash; but ensure `nMin` is not `Infinity`.</li><li>`nMin = n`: min number of circles.</li><li>`aimForMax = true`: aim for `nMax` circles? If `false`, aims for random integer between `nMin` and `nMax` &mdash; always aims for `nMax` if it is `Infinity`.</li><li>`radius = 5`: radius of circles; can be a function that returns a radius (passed the circle's center as separate x and y arguments).</li><li>`exclude = null`: iterable of agents that circles cannot overlap.</li><li>`gap = 0`: min distance between circles (if overlap falsy) and between circles and excluded agents.</li><li>`padding = 0`: min distance between circles and edge of simulation grid.</li><li>`overlap = false`: if `true`, circles can overlap.</li><li>`retry = 5000`: max total retries after generate invalid circle. `randomCircles` throws an error if `nMin` valid circles are not found within the permitted retries.</li></ul><br>__Note:__ when `overlap` is `false`, `randomCircles` may fail to find a solution &mdash; even when one exists. The current implementation simply generates a random circle, checks if it is valid, generates another circle, and so on. | array |
@@ -508,7 +510,7 @@ Set and delete forces from the `sim.interaction` map as required. Each key-value
 | `speed` | number/function |  | This optional property can only be used with an outward bounce behavior between actors. When used, the velocities produced by the force are scaled to `speed`. These uniform speeds give a smoother, but less physically accurate overall effect (very similar to [this Simulitis example](https://observablehq.com/@ambassadors/simulitis)). If `speed` is a function, it is passed the simulation object and the returned value is used. |
 | `decay` | boolean | `true` | Specifies if an attract or repel behavior becomes weaker with distance (`true`) or stronger (`false`). |
 | `ease` | string | `'easeLinear'` | Name of easing function for attract, repel or avoid behavior. This can be the name of any [D3 easing function](https://github.com/d3/d3-ease), but those with constant or increasing gradients give best results &mdash; e.g. `'easeLinear'`, `'easeQuadIn'`, `'easeCubicIn'`, `'easeSinIn'`, `'easeExpIn'`, `'easeCircleIn'.` |
-| `recover` | boolean | `false` | Only used with avoid behavior. If `recover` is `false`, the force is only applied between objects that are heading towards each other. If  `recover` is `true`, the force is always used (assuming the agents are within `off` of each other). In the absence of other forces, `recover` will return an actor to roughly its original direction after avoiding an agent. If e.g. a seek force is also being used, `recover` will return an actor to its original path before seeking the target. |
+| `recover` | boolean | `false` | Only used with avoid behavior. If `recover` is `false`, the force is only applied between objects that are heading towards each other. If  `recover` is `true`, the force is always used (assuming the agents are within `off` of each other). In the absence of other forces, `recover` will return an actor to roughly its original direction after avoiding an agent. If e.g. a seek force is also being used, `recover` will return an actor to its original heading before seeking the target. |
 | `force` | [vector](#vector)/function |  | Only used with custom behavior. If `force` is a function, it is passed a group 1 agent and a group 2 agent, and should return a vector. |
 | `log` | boolean | `false` | If `true`, each agent's `bounceLog` property includes the agents that bounced against it this tick. (Logging does not cover bounces against the simulation boundary.)|
 | `logOnly` | boolean | `false` | As `log`, but the bounce force does not actually apply any force &mdash; it is just used to log collisions |<br><br>
@@ -598,9 +600,39 @@ cat.steer.set('cat-seek-mouse', {
 
 Set `actor.steerMaxForce` (default: `Infinity`) to set a maximum steering force.
 
+##### Steering and Polylines
+
+We can use [polylines](#polylines) to have actors e.g. seek the nearest point on a line (or set of lines), or to steer along a line. For example:
+
+```js
+// create a polyline and register it with the simulation
+const line = new AA.Polyline([[50, 50], [250, 250], [150, 50]]);
+const nearest = sim.registerPolylines(line);
+
+// actor moves to nearest point on polyline
+const a1 = new AA.Actor({x: 270, y: 100, maxSpeed: 1}).addTo(sim);
+a1.steer.set('to-line', {
+  behavior: 'seek',
+  target: nearest(a1).point
+});
+
+// actor heads for polyline then travels along it
+const a2 = new AA.Actor({x: 100, y: 230, maxSpeed: 1}).addTo(sim);
+a2.steer.set('along-line', {
+  behavior: 'seek',
+  target: () => line.pointAt(nearest(a2).param + 10)
+});
+
+// non-force approach: move actor along line explicitly
+const a3 = new AA.Actor({x: 50, y: 50, state: {param: 0}}).addTo(sim);
+a3.updateState = function() {
+  this.useXY(line.pointAt(this.state.param++));
+};
+```
+
 ##### Go Behavior
 
- `'go'` behavior steers an actor towards the nearest destination square, where 'nearest' is based on distance plus any additional costs associated with the squares that the actor will travel through. Use `sim.paths(destinations, costs, taxicab)` to get a shortest paths object for `'go'` behavior:
+`'go'` behavior steers an actor towards the 'nearest destination square', where 'nearest' is based on distance plus any additional costs associated with the squares that the actor will travel through. Use `sim.paths(destinations, costs, taxicab)` to get a shortest paths object for `'go'` behavior:
 
 | Parameter | Type | Default | Description |
 |:-----|:-----|:--------|:------------|
@@ -695,6 +727,7 @@ The width and height of grid squares is `sim.gridStep`.
 | `xIndex` | number | Zero-based x-grid-index of the square. |  
 | `yIndex` | number | Zero-based y-grid-index of the square. |
 | `index` | number | Zero-based linear-grid-index of the square (top-left to bottom-right, top row first, then second row, and so on). |
+| `checker` | number | `0` if `xIndex` and `yIndex` are both even, or both odd; otherwise `1`.  |
 | `actors` | [xset](#xset) | Actors that currently overlap the square (in no specific order).|
 | `zones` | [xset](#xset) | Zones that currently overlap the square (in the order the zones were added to the simulation).
 
@@ -767,7 +800,7 @@ __Extends:__ `Set`.
 
 __Constructor__: `new XSet()` or `new XSet(iterable)`.
 
-### Methods
+### Methods <small>&ndash; instance</small>
 
 | Method | Description | Return |
 |:---|:---|:---|
@@ -830,6 +863,45 @@ __Constructor:__ `new Vector(x = 0, y = 0)`.
 | `scaProject(v)` | Scalar projection of calling vector on `v`. | number |
 | `vecRejec(v)` | Vector rejection of calling vector on `v`. | vector |
 | `scaRejec(v)` | Scalar rejection of calling vector on `v`. | number |
+
+## `Polyline`
+
+2D polyline class.
+
+__Constructor:__ `new Polyline(points)`, where `points`: an array, and each element of `points` is either an array (`[x, y]`) or an object with `x` and `y` properties.
+
+Polylines are often used with [forces](#forces) which typically involves finding the nearest point on the polyline to an actor. To find the nearest point, it is best to register the polyline(s) with the simulation using [`sim.registerPolylines`](#methods-ndash-basic)) method and use the returned function to look up the nearest point. This is faster than using the `nearestPoint` polyline method. 
+
+?> Note: pass multiple polylines to `sim.registerPolylines` to get a function that finds the nearest point on any of the polylines; use separate calls to `sim.registerPolylines` to get a separate function for each polyline.
+
+The polyline constructor and methods that create new polylines are not particularly fast, nor is registering polylines. In contrast, the `pointAt` polyline method and the function returned by `sim.registerPolylines` are reasonably fast &mdash; and these are the functions that are typically used during the simulation. With this in mind, it is best to create and register polyline before the simulation or during a pause.
+
+### Properties <small>&ndash; read only</small>
+
+| Property | Type | Description |
+|:---|:---|:---|
+| `xMin` | number | min x value. |  
+| `xMax` | number | max x value. |
+| `yMin` | number | min y value. | 
+| `yMax` | number | max y value. | 
+| `x` | number | x value of the centroid of the polyline's bounding box. | 
+| `y` | number | y value of the centroid of the polyline's bounding box. | 
+| `pts` | array | Points of the polyline &mdash;an array of [vectors](#vector). |
+| `segs` | array | Segments of the polyline &mdash; an array of [vectors](#vector). Segment <i>i</i> is <i><b>p</b><sub>i</sub> - <b>p</b><sub>i-1</sub></i>.|
+| `segLengths` | array | Length of each segment. |
+| `segLengthsCumu` | array | Cumulative segment lengths. The first entry of the array is `0` so `segLengthsCumu` has one more element than `segLengths`. |
+| `lineLength` | number | Length of polyline; equal to the last entry of `segLengthsCumu`. |
+
+### Methods <small>&ndash; instance</small>
+
+| Method | Description | Return |
+|:---|:---|:---|
+| `simplify(tolerance = 1,`<br>&emsp;` highQuality)` | Returns a new polyline with fewer points. Increase `tolerance` for greater simplification. If `higherQuality` is `true`, the simplification is of higher quality, but takes longer to compute. See [simplify-js](http://mourner.github.io/simplify-js/) for more details. | polyline |
+| `transform(options)` | Transform the calling polyline to create a new polyline. The calling polyline is scaled and rotated about its first point, then translated. `options` is an object; valid properties and their defaults are:<ul style="margin:0"><li><code>scale = 1</code></li><li><code>rotate = 0</code></li><li><code>translate = [0, 0]</code></li></ul> | polyline |
+| `pointAt(t, wrap)` | Point on polyline at curve parameter `t` (which runs from 0 to the length of the polyline). If `wrap` is `true`, a `t` value of less than 0 or greater than the polyline's length is 'wrapped' &mdash; this option is typically used when the first and last points of the polygon are equal. If `wrap` is `false`, `pointAt` returns the start of the polyline when `t` is negative, and the end of the line when `t` is greater than the polyline's length. | [vector](#vector) |
+| `pointFrac(t, wrap)` | As `pointAt` but for a parameter that runs from 0 to 1. | [vector](#vector) |
+| `walk(n)` | A new polyline of `n` points formed from from equally spaced intervals along the calling polyline. The new polyline has the same start and end points as the calling polyline. | polyline |
+| `pointNearest(p, segIndices)` | For the given point `p` (an object with `x` and `y` properties), returns information about the nearest point on the polyline. To only look for the nearest point on a subset of segments, pass an array of segment indices as `segIndices`. The returned object has properties:<ul style="margin:0"><li>`point`: vector, nearest point on the polyline (or specified segments).</li><li>`param`: number, value of curve parameter corresponding to nearest point.</li><li>`segIndex`: number, index of segment of nearest point.</li><li>`scaProjec`: number, scalar projection of `p` onto segment of nearest point.</li><li>`dist`: number, distance from `p` to nearest point.</li></ul> | object |
 
 ## Helpers
 
