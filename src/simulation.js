@@ -1007,7 +1007,7 @@ export class Simulation {
         }
         // minDist + halfDiag is an upper bound on the distance from any point
         // in the square to the segment corresponding to minDist
-        return candidateSegs.filter(obj => obj.dist < minDist + halfDiag);
+        return candidateSegs.filter(obj => obj.dist <= minDist + halfDiag);
       });
     });
 
