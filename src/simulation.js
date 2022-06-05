@@ -1034,17 +1034,16 @@ export class Simulation {
       if (candidateSegs.length === 0) return null;
       let minDist = Infinity;
       let best;
-      let bestLine;
       for (let {line, segIndex} of candidateSegs) { 
         const pn = line._pointNearestOnSeg(p, segIndex);
         if (pn.dist < minDist) {
           minDist = pn.dist;
+          pn.line = line;
+          pn.segIndex = segIndex;
           best = pn;
-          bestLine = line;
         }
       }
       if (minDist > off) return null;
-      best.line = bestLine;
       return best;
     };
 

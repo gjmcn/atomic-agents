@@ -40,10 +40,6 @@ Notes:
 
 Actors can be moved directly or by <i>forces</i>. There are two types of force: <i>Interaction forces</i> specify how agents from different groups (or agents from the same group) interact with each other. Attraction and repulsion are examples of interaction forces. In contrast, <i>Steering forces</i> give an actor individual behavior, such as chasing another actor.
 
-## Outside Events
-
-Methods such `sim.afterTick` and `agent.updateState` can access DOM elements or non-simulation variables and act accordingly. For example, a range input may indicate the rate at which a given kind of actor should be added to the simulation; `sim.afterTick` could be used to create the new actors in line with the input's current value.
-
 ## Update Order
 
 Each tick, the simulation follows these steps:
@@ -66,6 +62,12 @@ For agents of the same type, the `updateState` methods are called in the order t
 ## Visualisation
 
 Atomic Agents has its own visualisation module: [Atomic Agents Vis](https://gjmcn.github.io/atomic-agents-vis/). However, this is not the only option; the information required to visualise a simulation is easily accessible so other visualisation libraries can be used.
+
+## User Interaction
+
+Methods such as `sim.afterTick` and `agent.updateState` can access DOM elements or non-simulation variables and act accordingly. For example, a range input may indicate the rate at which a given kind of actor should be added to the simulation; `sim.afterTick` could be used to create the new actors in line with the input's current value.
+
+When using [Atomic Agents Vis](https://gjmcn.github.io/atomic-agents-vis/), event listeners can be added to agents and the background.
 
 ## Install
 
@@ -140,9 +142,11 @@ The simulation grid is used as a simple <i>spatial index</i>: we track which squ
 
 * For simulations that contain actors (and to a lesser extent, zones), the size of grid squares affects performance: if squares are too large relative to actors, proximity methods will need to consider lots of candidates. If squares are too small relative to actors, proximity methods will need to search over lots of squares. In many cases, squares are part of the simulation (rather than just being elements of the spatial index), so simulation design (rather then performance) will dictate square size.
 
-* Most forces use proximity methods internally, so the size of grid squares affects the performance of forces. Also, many forces have an `off` option &mdash; the the distance above which the force is not applied. `off` has a big impact on performance, with large `off` being more expensive.
+* Most forces use proximity methods internally, so the size of grid squares affects the performance of forces. Also, many forces have an `off` option &mdash; the the distance above which the force is not applied. `off` has a big impact on performance, with larger `off` being more expensive.
 
 * Use labels to track arbitrary dynamic collections of agents that need to be 'selected' one or more times.
+
+* Register [polylines](#polyline) with the simulation using `sim.registerPolylines` and use the returned function to find nearest points &mdash; rather than using the `pointNearest` polyline method.
 
 # API
 
@@ -258,7 +262,7 @@ Static properties are accessed via the `Simulation` class itself. E.g. `Simulati
 | `randomX(padding)` | Random value between 0 (inclusive) and `sim.width` (exclusive). If `padding` is used, the returned value is at least `padding` from 0 and `sim.width`. | number |
 | `randomY(padding)` | Random value between 0 (inclusive) and `sim.height` (exclusive). If `padding` is used, the returned value is at least `padding` from 0 and `sim.height`. | number |
 | `frame(period, steps)` | `sim.frame(period, steps)` is equivalent to `frame(period, steps, sim.tickIndex)`. See [`frame`](#helpers) for details. | number |
-| `registerPolylines(`<br>&emsp;` polylines, off = Infinity)` | `polylines` should be a single [polyline](#polyline) or an iterable of polylines; `off` is the distance above which points are not considered close to polylines. Returns a function that takes a 'point' (an object with `x` and `y` properties) and returns an object with information about the nearest point on any of the polylines: a `line` property containing the polyline of the nearest point, and all the properties returned by the [`pointNearest`](#methods-ndash-instance-2) polyline method.<br><br>__Note:__ the returned function returns `null` when passed a point that is outside the simulation grid (or for an actor, does not overlap the grid) or if the point is greater than `off` from the polylines. | function |
+| `registerPolylines(`<br>&emsp;` polylines, off = Infinity)` | `polylines` should be a single [polyline](#polyline) or an iterable of polylines; `off` is the distance above which points are not considered close to polylines. Returns a function that takes a 'point' (an object with `x` and `y` properties) and returns an object with information about the nearest point on any of the polylines: a `line` property containing the polyline of the nearest point, and all the properties returned by the [`pointNearest`](#methods-ndash-instance-2) polyline method.<br><br>__Note:__ the returned function returns `null` when passed a point that is outside the simulation grid (or for an actor, does not overlap the grid) or if the point is greater than `off` distance from the polylines. | function |
 | `paths(destinations,`<br>&emsp;` costs = [], taxicab)` | Computes shortest paths &mdash; see [Go Behavior](#go-behavior). | map |
 | `fitGrid(options = {})` | Generate grid points in simulation grid. `sim.fitGrid(options)` is equivalent to `gridInRect(sim, options)` &mdash; see [`gridInRect`](#helpers). | array |
 | `randomCircles(options = {})` | Generate random circles (i.e. objects wth properties `x`, `y` and `radius`) that fit within the simulation grid. `options` is an object; valid properties and their defaults are:<ul style="margin:0"><li>`n = 1`: number of circles; not used if both `nMax` and `nMin` are used.</li><li>`nMax = n`: max number of circles; use `Infinity` to get as many as possible &mdash; but ensure `nMin` is not `Infinity`.</li><li>`nMin = n`: min number of circles.</li><li>`aimForMax = true`: aim for `nMax` circles? If `false`, aims for random integer between `nMin` and `nMax` &mdash; always aims for `nMax` if it is `Infinity`.</li><li>`radius = 5`: radius of circles; can be a function that returns a radius (passed the circle's center as separate x and y arguments).</li><li>`exclude = null`: iterable of agents that circles cannot overlap.</li><li>`gap = 0`: min distance between circles (if overlap falsy) and between circles and excluded agents.</li><li>`padding = 0`: min distance between circles and edge of simulation grid.</li><li>`overlap = false`: if `true`, circles can overlap.</li><li>`retry = 5000`: max total retries after generate invalid circle. `randomCircles` throws an error if `nMin` valid circles are not found within the permitted retries.</li></ul><br>__Note:__ when `overlap` is `false`, `randomCircles` may fail to find a solution &mdash; even when one exists. The current implementation simply generates a random circle, checks if it is valid, generates another circle, and so on. | array |
@@ -602,7 +606,7 @@ Set `actor.steerMaxForce` (default: `Infinity`) to set a maximum steering force.
 
 ##### Steering and Polylines
 
-We can use [polylines](#polylines) to have actors e.g. seek the nearest point on a line (or set of lines), or to steer along a line. For example:
+We can use steering forces with [polylines](#polyline) to have actors e.g. seek the nearest point on a polyline (or set of polylines), or to steer along a polyline. For example:
 
 ```js
 // create a polyline and register it with the simulation
@@ -868,13 +872,13 @@ __Constructor:__ `new Vector(x = 0, y = 0)`.
 
 2D polyline class.
 
-__Constructor:__ `new Polyline(points)`, where `points`: an array, and each element of `points` is either an array (`[x, y]`) or an object with `x` and `y` properties.
+__Constructor:__ `new Polyline(points)`, where `points` is an array, and each element of `points` is either an array (`[x, y]`) or an object with `x` and `y` properties.
 
-Polylines are often used with [forces](#forces) which typically involves finding the nearest point on the polyline to an actor. To find the nearest point, it is best to register the polyline(s) with the simulation using [`sim.registerPolylines`](#methods-ndash-basic)) method and use the returned function to look up the nearest point. This is faster than using the `nearestPoint` polyline method. 
+Polylines are often used with [forces](#forces), which typically involves finding the nearest point on a polyline to an actor. Rather than using the `pointNearest` polyline method for this (which is slow), register the polyline(s) with the simulation using [`sim.registerPolylines`](#methods-ndash-basic), then use the returned function to look up the nearest point.
 
-?> Note: pass multiple polylines to `sim.registerPolylines` to get a function that finds the nearest point on any of the polylines; use separate calls to `sim.registerPolylines` to get a separate function for each polyline.
+The polyline constructor and methods that create new polylines are not particularly fast, nor is registering polylines. Where possible, create and register polylines before the simulation or during a pause in the simulation. The functions most commonly used during the simulation are the `pointAt` polyline method and functions returned by `sim.registerPolylines`; these are reasonably fast.
 
-The polyline constructor and methods that create new polylines are not particularly fast, nor is registering polylines. In contrast, the `pointAt` polyline method and the function returned by `sim.registerPolylines` are reasonably fast &mdash; and these are the functions that are typically used during the simulation. With this in mind, it is best to create and register polyline before the simulation or during a pause.
+?> Note: pass multiple polylines to `sim.registerPolylines` to get a function that finds the nearest point on any of the polylines. Use separate calls to `sim.registerPolylines` to get a separate function for each polyline.
 
 ### Properties <small>&ndash; read only</small>
 
@@ -887,21 +891,21 @@ The polyline constructor and methods that create new polylines are not particula
 | `x` | number | x value of the centroid of the polyline's bounding box. | 
 | `y` | number | y value of the centroid of the polyline's bounding box. | 
 | `pts` | array | Points of the polyline &mdash;an array of [vectors](#vector). |
-| `segs` | array | Segments of the polyline &mdash; an array of [vectors](#vector). Segment <i>i</i> is <i><b>p</b><sub>i</sub> - <b>p</b><sub>i-1</sub></i>.|
+| `segs` | array | Segments of the polyline &mdash; an array of [vectors](#vector). Segment <i>i</i> is <i><b>p</b><sub>i+1</sub> - <b>p</b><sub>i</sub></i>.|
 | `segLengths` | array | Length of each segment. |
-| `segLengthsCumu` | array | Cumulative segment lengths. The first entry of the array is `0` so `segLengthsCumu` has one more element than `segLengths`. |
-| `lineLength` | number | Length of polyline; equal to the last entry of `segLengthsCumu`. |
+| `segLengthsCumu` | array | Cumulative segment lengths. The first element of the array is `0` so `segLengthsCumu` has one more element than `segLengths`. |
+| `lineLength` | number | Length of the polyline; equal to the last entry of `segLengthsCumu`. |
 
 ### Methods <small>&ndash; instance</small>
 
 | Method | Description | Return |
 |:---|:---|:---|
-| `simplify(tolerance = 1,`<br>&emsp;` highQuality)` | Returns a new polyline with fewer points. Increase `tolerance` for greater simplification. If `higherQuality` is `true`, the simplification is of higher quality, but takes longer to compute. See [simplify-js](http://mourner.github.io/simplify-js/) for more details. | polyline |
-| `transform(options)` | Transform the calling polyline to create a new polyline. The calling polyline is scaled and rotated about its first point, then translated. `options` is an object; valid properties and their defaults are:<ul style="margin:0"><li><code>scale = 1</code></li><li><code>rotate = 0</code></li><li><code>translate = [0, 0]</code></li></ul> | polyline |
-| `pointAt(t, wrap)` | Point on polyline at curve parameter `t` (which runs from 0 to the length of the polyline). If `wrap` is `true`, a `t` value of less than 0 or greater than the polyline's length is 'wrapped' &mdash; this option is typically used when the first and last points of the polygon are equal. If `wrap` is `false`, `pointAt` returns the start of the polyline when `t` is negative, and the end of the line when `t` is greater than the polyline's length. | [vector](#vector) |
-| `pointFrac(t, wrap)` | As `pointAt` but for a parameter that runs from 0 to 1. | [vector](#vector) |
-| `walk(n)` | A new polyline of `n` points formed from from equally spaced intervals along the calling polyline. The new polyline has the same start and end points as the calling polyline. | polyline |
-| `pointNearest(p, segIndices)` | For the given point `p` (an object with `x` and `y` properties), returns information about the nearest point on the polyline. To only look for the nearest point on a subset of segments, pass an array of segment indices as `segIndices`. The returned object has properties:<ul style="margin:0"><li>`point`: vector, nearest point on the polyline (or specified segments).</li><li>`param`: number, value of curve parameter corresponding to nearest point.</li><li>`segIndex`: number, index of segment of nearest point.</li><li>`scaProjec`: number, scalar projection of `p` onto segment of nearest point.</li><li>`dist`: number, distance from `p` to nearest point.</li></ul> | object |
+| `simplify(tolerance = 1,`<br>&emsp;` highQuality)` | Simplify polyline &mdash; returns a new polyline with fewer points. Increase `tolerance` for greater simplification. If `higherQuality` is `true`, the simplification is of higher quality, but takes longer to compute. See [simplify-js](http://mourner.github.io/simplify-js/) for more details. | polyline |
+| `transform(options)` | Transform polyline &mdash; returns a new polyline. The polyline is scaled and rotated about its first point, then translated. `options` is an object; valid properties and their defaults are:<ul style="margin:0"><li><code>scale = 1</code></li><li><code>rotate = 0</code> (radians)</li><li><code>translate = [0, 0]</code></li></ul> | polyline |
+| `pointAt(t, wrap)` | Point on polyline at curve parameter `t` (which runs from 0 to the length of the polyline). If `wrap` is `true`, a `t` value of less than 0 or greater than the polyline's length is 'wrapped' &mdash; this option is typically used when the first and last points of the polyline are the same or very close together. If `wrap` is `false`, `pointAt` returns the start of the polyline when `t` is negative, and the end of the polyline when `t` is greater than the polyline's length. | [vector](#vector) |
+| `pointAtFrac(t, wrap)` | As `pointAt`, but for a parameter that runs from 0 to 1. | [vector](#vector) |
+| `walk(n)` | A new polyline of `n` points formed from equally spaced intervals along the calling polyline. The new polyline has the same start and end points as the calling polyline. | polyline |
+| `pointNearest(p, segIndices)` | Returns information about the nearest point on the polyline to point `p` &mdash; an object with `x` and `y` properties. To only look for the nearest point on a subset of segments, pass an array of segment indices as `segIndices`. The returned object has properties:<ul style="margin:0"><li>`point`: vector, nearest point on polyline (or on specified segments).</li><li>`param`: number, value of curve parameter corresponding to nearest point.</li><li>`segIndex`: number, index of segment of nearest point.</li><li>`scaProjec`: number, scalar projection of `p` onto segment of nearest point.</li><li>`dist`: number, distance from `p` to nearest point.</li></ul> | object |
 
 ## Helpers
 

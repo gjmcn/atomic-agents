@@ -4,7 +4,7 @@
 
 import { Vector } from './vector.js';
 import { simplify } from './simplify.js';
-import { roughlyEqual, moduloShift } from './helpers.js';
+import { moduloShift } from './helpers.js';
 
 export class Polyline {
 
@@ -41,11 +41,11 @@ export class Polyline {
     }
     this.lineLength = this.segLengthsCumu.at(-1);
 
-    // if line has more than 3 segments, this._intervals contains the segment
+    // if line has more than 2 segments, this._intervals contains the segment
     // index at equal intervals of this_step along the line; the last entry of
     // this._intervals corresponds to the point one step before the line's end
-    if (this.segs.length > 3) {
-      const n = Math.min(this.segs.length, 200);
+    if (this.segs.length > 2) {
+      const n = Math.min(this.segs.length + 1);
       this._step = this.lineLength / n;
       this._intervals = [];
       let segIndex = 0;

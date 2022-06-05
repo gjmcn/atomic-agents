@@ -41,8 +41,8 @@ test('constructor, 1', () => {
 
 test('constructor, 2', () => {
   expect(p2.lineLength).toBeCloseTo(8.8072);
-  expect(p2._step).toBeCloseTo(8.8072 / 4);
-  expect(p2._intervals).toStrictEqual([0, 0, 1, 3]);
+  expect(p2._step).toBeCloseTo(8.8072 / 5);
+  expect(p2._intervals).toStrictEqual([0, 0, 1, 2, 3]);
 });
 
 test('pointAt, 1', () => {

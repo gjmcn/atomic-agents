@@ -1,3 +1,9 @@
+#### 0.1.7 &mdash; June 5, 2022
+
+* Add polylines.
+
+* Add `square.checker`.
+
 #### 0.1.6 &mdash; May 22, 2022
 
 * Add vis methods.
