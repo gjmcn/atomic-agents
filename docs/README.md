@@ -876,7 +876,7 @@ __Constructor:__ `new Polyline(points)`, where `points` is an array, and each el
 
 Polylines are often used with [forces](#forces), which typically involves finding the nearest point on a polyline to an actor. Rather than using the `pointNearest` polyline method for this (which is slow), register the polyline(s) with the simulation using [`sim.registerPolylines`](#methods-ndash-basic), then use the returned function to look up the nearest point.
 
-The polyline constructor and methods that create new polylines are not particularly fast, nor is registering polylines. Where possible, create and register polylines before the simulation or during a pause in the simulation. The functions most commonly used during the simulation are the `pointAt` polyline method and functions returned by `sim.registerPolylines`; these are reasonably fast.
+The polyline constructor and methods that create new polylines are not particularly fast, nor is registering polylines. Where possible, create and register polylines before starting the simulation or during a pause in the simulation. The functions most commonly used during the simulation are the `pointAt` polyline method and functions returned by `sim.registerPolylines`; these are reasonably fast.
 
 ?> Note: pass multiple polylines to `sim.registerPolylines` to get a function that finds the nearest point on any of the polylines. Use separate calls to `sim.registerPolylines` to get a separate function for each polyline.
 
