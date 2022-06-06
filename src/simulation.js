@@ -7,7 +7,7 @@ import { XSet } from './x-set.js';
 import { Vector } from './vector.js';
 import {
   assertInteger, normalizeAngle, getIndexLimits, getLayer, gridInRect,
-  partitionRect, frame, setVisOptions, isIterable
+  partitionRect, frame, setVisOptions, setVis3dOptions, isIterable
 } from './helpers.js';
 import { Grid } from  './grid.js';
 import { centroidDistanceSqd } from './centroid-distance.js';
@@ -23,6 +23,7 @@ export class Simulation {
 
   static single = false;
   static _currentSimulation = null;
+  
   static visOptions = new Set([
     'baseColor',
     'baseAlpha',
@@ -36,6 +37,19 @@ export class Simulation {
     'tint',
     'alpha',
     'image'
+  ]);
+
+  static vis3dOptions = new Set([
+    'backgroundColor',
+    'groundType',
+    'groundColor',
+    'groundTexture',
+    'groundCheckerColors',
+  ]);
+  static updatableVis3dOptions = new Set([
+    'backgroundColor',
+    'groundColor',
+    'groundTexture',
   ]);
 
   constructor(options = {}) {
@@ -93,6 +107,11 @@ export class Simulation {
 
   vis(obj = {}) {
     return setVisOptions(this, Simulation, obj);
+  }
+
+  
+  vis3d(obj = {}) {
+    return setVis3dOptions(this, Simulation, obj);
   }
 
   _addAgent(agent) {

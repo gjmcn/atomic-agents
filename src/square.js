@@ -4,7 +4,7 @@
 
 import { XSet } from './x-set.js';
 import {
-  assertAgentType, assertInteger, getLayer, setVisOptions
+  assertAgentType, assertInteger, getLayer, setVisOptions, setVis3dOptions
 } from './helpers.js';
 import { Agent } from "./agent.js";
 import { insideDistance } from "./inside-distance.js";
@@ -17,6 +17,15 @@ export class Square extends Agent {
   ]);
 
   static updatableVisOptions = Agent.updatableVisOptions;
+
+  static vis3dOptions = new Set([...Agent.vis3dOptions,
+    'tileColor',
+    'tileTexture',
+  ]);
+  static updatableVis3dOptions = new Set([...Agent.updatableVis3dOptions,
+    'tileColor',
+    'tileTexture',
+  ]);
 
   constructor(options) {
     super(options);
@@ -33,6 +42,10 @@ export class Square extends Agent {
 
   vis(obj = {}) {
     return setVisOptions(this, Square, obj);
+  }
+
+  vis3d(obj = {}) {
+    return setVis3dOptions(this, Square, obj);
   }
   
   remove() {

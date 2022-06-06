@@ -155,6 +155,36 @@ export function setVisOptions(a, cls, ops) {
   return a;
 }
 
+// Set 3d vis options for simulation or agent.
+const interactionEvents3d = new Set([
+]);
+export function setVis3dOptions(a, cls, ops) {
+  if (a._vis3d || a._vis3dUpdates  || a._interaction3d) {
+    throw Error('can only set 3d vis options once');
+  }
+  for (let [key, value] of Object.entries(ops)) {
+    if (interactionEvents3d.has(key.toLowerCase())) {
+      if (typeof value !== 'function') {
+        throw Error(`3d interaction option "${key}": function expected`);
+      }
+      (a._interaction3d ??= new Map()).set(key.toLowerCase(), value.bind(a));
+    }
+    else if (typeof value === 'function') {
+      if (!cls.updatableVis3dOptions.has(key)) {
+        throw Error(`"${key}" is not an updatable 3d vis option`);
+      }
+      (a._vis3dUpdates ??= new Map()).set(key, value.bind(a));
+    }
+    else {
+      if (!cls.vis3dOptions.has(key)) {
+        throw Error(`"${key}" is not a 3d vis option`);
+      }
+      (a._vis3d ??= new Map()).set(key, value);
+    }
+  }
+  return a;
+}
+
 // Returns r = p + mq, such that: 0 <= r < q (so assumes q > 0).
 export function moduloShift(p, q) {
   return p < 0 || p >= q

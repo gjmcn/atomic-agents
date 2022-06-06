@@ -43,6 +43,14 @@ export class Agent {
     'fontName',
     'fontSize',
   ]);
+
+  
+  static vis3dOptions = new Set([
+    'color'
+  ]);
+  static updatableVis3dOptions = new Set([
+    'color'
+  ]);
   
   constructor(options = {}) {
     this.x           = options.x       ?? 0;
