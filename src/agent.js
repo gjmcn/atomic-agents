@@ -55,6 +55,7 @@ export class Agent {
   constructor(options = {}) {
     this.x           = options.x       ?? 0;
     this.y           = options.y       ?? 0;
+    this.z           = options.z       ?? 0;
     this.state       = options.state   ?? {};
     this.history     = options.history ?? {};
     if (options.updateState) this.updateState = options.updateState;
@@ -63,8 +64,8 @@ export class Agent {
     this._labels        = new Map();
     this._resetOnRemove = null; 
     this.__agent        = true;
-    // also: this._vis, this._visUpdates and this._interaction set by vis method
-    //       of agent subtypes
+    // also _visXXX and _interactionXXX properties set by vis and vis3d methods
+    // of agent subtypes
   }
 
   _validateSimulation(simulation) {

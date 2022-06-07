@@ -23,7 +23,8 @@ export class Zone extends Agent {
     super(options);
     this.type      = 'zone';
     this._shape    = 'rect';
-    this.zIndex    = options.zIndex ?? -Infinity;
+    this.zIndex    = options.zIndex    ?? -Infinity;
+    this.direction = options.direction ?? 0;
     this.squares   = null;
     this.xMin      = null;
     this.xMax      = null;

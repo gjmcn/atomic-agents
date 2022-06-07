@@ -102,14 +102,13 @@ export class Simulation {
     else {
       Simulation._currentSimulation = null;
     }
-    // also: this._vis, this._visUpdates and this._interaction set by this.vis
+    // also _visXXX and _interactionXXX properties set by vis and vis3d methods
   }
 
   vis(obj = {}) {
     return setVisOptions(this, Simulation, obj);
   }
 
-  
   vis3d(obj = {}) {
     return setVis3dOptions(this, Simulation, obj);
   }
