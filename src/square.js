@@ -12,6 +12,7 @@ import { insideDistance } from "./inside-distance.js";
 export class Square extends Agent {
 
   static visOptions = new Set([...Agent.visOptions,
+    'direction',
     'textPosition',
     'textPadding',
   ]);
@@ -21,6 +22,7 @@ export class Square extends Agent {
   static vis3dOptions = new Set([...Agent.vis3dOptions,
     'tileColor',
     'tileTexture',
+    'direction',
   ]);
   static updatableVis3dOptions = new Set([...Agent.updatableVis3dOptions,
     'tileColor',

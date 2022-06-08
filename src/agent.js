@@ -43,7 +43,6 @@ export class Agent {
     'fontName',
     'fontSize',
   ]);
-
   
   static vis3dOptions = new Set([
     'color'

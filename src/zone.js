@@ -12,9 +12,10 @@ import { regions } from './regions.js';
 export class Zone extends Agent {
 
   static visOptions = new Set([...Agent.visOptions,
+    'direction',
+    'tile',
     'textPosition',
     'textPadding',
-    'tile',
   ]);
 
   static updatableVisOptions = Agent.updatableVisOptions;
