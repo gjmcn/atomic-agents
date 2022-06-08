@@ -29,12 +29,11 @@ export class Square extends Agent {
 
   constructor(options) {
     super(options);
-    this.type      = 'square';
-    this._shape    = 'rect';
-    this.zIndex    = options.zIndex    ?? NaN;
-    this.direction = options.direction ?? 0;
-    this.actors    = new XSet();
-    this.zones     = new XSet();
+    this.type   = 'square';
+    this._shape = 'rect';
+    this.zIndex = options.zIndex ?? NaN;
+    this.actors = new XSet();
+    this.zones  = new XSet();
   }
 
   get checker() {

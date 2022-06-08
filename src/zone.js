@@ -21,15 +21,14 @@ export class Zone extends Agent {
 
   constructor(options = {}) {
     super(options);
-    this.type      = 'zone';
-    this._shape    = 'rect';
-    this.zIndex    = options.zIndex    ?? -Infinity;
-    this.direction = options.direction ?? 0;
-    this.squares   = null;
-    this.xMin      = null;
-    this.xMax      = null;
-    this.yMin      = null;
-    this.Max       = null;
+    this.type    = 'zone';
+    this._shape  = 'rect';
+    this.zIndex  = options.zIndex ?? -Infinity;
+    this.squares = null;
+    this.xMin    = null;
+    this.xMax    = null;
+    this.yMin    = null;
+    this.Max     = null;
     [this.xMinIndex, this.xMaxIndex, this.yMinIndex, this.yMaxIndex] =
       getIndexLimits(options.indexLimits);
     this._resetOnRemove = ['xMin', 'xMax', 'yMin', 'yMax', 'squares'];
