@@ -47,6 +47,7 @@ export class Agent {
   static vis3dOptions = new Set([
     'color'
   ]);
+  
   static updatableVis3dOptions = new Set([
     'color'
   ]);
