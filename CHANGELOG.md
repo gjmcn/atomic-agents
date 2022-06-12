@@ -1,3 +1,9 @@
+#### 0.1.8 &mdash; June 12, 2022
+
+* Add `direction` property to `Square` and `Zone`.
+
+* Add `z` property to `Agent`.
+
 #### 0.1.7 &mdash; June 5, 2022
 
 * Add polylines.

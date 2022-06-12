@@ -315,6 +315,7 @@ __Constructor:__ `new Agent(options = {})`, where `options` can be used to initi
 
 &emsp;&emsp;`x`<br>
 &emsp;&emsp;`y`<br>
+&emsp;&emsp;`z`<br>
 &emsp;&emsp;`state`<br>
 &emsp;&emsp;`history`<br>
 &emsp;&emsp;`updateState`<br>
@@ -331,6 +332,7 @@ __Constructor:__ `new Agent(options = {})`, where `options` can be used to initi
 
 | Property | Type | Default | Description |
 |:---|:---|:---|:---|
+| `z` | number | `0` | z coordinate of centroid. Not used internally by Atomic Agents (which is 2D), but will be used in future for 3D visualisation. |
 | `state` | any | `{}` |  See [State and History](#state-and-history). |
 | `history` | any | `{}` | See [State and History](#state-and-history). |
 
@@ -739,7 +741,8 @@ The width and height of grid squares is `sim.gridStep`.
 
 | Property | Type | Default | Description |
 |:---|:---|:---|:---|
-| `zIndex` | number | `NaN` | Used by visualisation libraries &mdash; see [Atomic Agents Vis - Drawing Order](https://gjmcn.github.io/atomic-agents-vis/#/?id=drawing-order). |
+| `direction` | number | `0` | Used by visualisation libraries; see [Atomic Agents Vis &ndash; Images](https://gjmcn.github.io/atomic-agents-vis/#/?id=images). |
+| `zIndex` | number | `NaN` | Used by visualisation libraries; see [Atomic Agents Vis &ndash; Drawing Order](https://gjmcn.github.io/atomic-agents-vis/#/?id=drawing-order). |
 
 ### Methods <small>&ndash; basic</small>
 
@@ -763,7 +766,7 @@ A rectangular region comprised of one or more contiguous squares.
 
 __Extends:__ [`Agent`](#agent).
 
-__Constructor:__ `new Zone(options)`, where the `options` object is passed to the [Agent](#agent) constructor. `options` should also contain an `indexLimits` property of grid indices that specify the zone's boundary; this can an iterable with elements `xMinIndex`, `xMaxIndex`, `yMinIndex`, `yMaxIndex`, or an object with these properties (simulation objects and zones have such properties). An initial `zIndex` value can also be passed in `options`. 
+__Constructor:__ `new Zone(options)`, where the `options` object is passed to the [Agent](#agent) constructor. `options` should also contain an `indexLimits` property of grid indices that specify the zone's boundary; this can an iterable with elements `xMinIndex`, `xMaxIndex`, `yMinIndex`, `yMaxIndex`, or an object with these properties (simulation objects and zones have such properties). Initial values for `direction` and `zIndex` can also be passed in `options`. 
 
 ### Properties <small>&ndash; read only</small>
 
@@ -786,7 +789,8 @@ __Constructor:__ `new Zone(options)`, where the `options` object is passed to th
 
 | Property | Type | Default | Description |
 |:---|:---|:---|:---|
-| `zIndex` | number | `-Infinity` | Used by visualisation libraries &mdash; see [Atomic Agents Vis - Drawing Order](https://gjmcn.github.io/atomic-agents-vis/#/?id=drawing-order). |
+| `direction` | number | `0` | Used by visualisation libraries; see [Atomic Agents Vis &ndash; Images](https://gjmcn.github.io/atomic-agents-vis/#/?id=images). |
+| `zIndex` | number | `-Infinity` | Used by visualisation libraries; see [Atomic Agents Vis &ndash; Drawing Order](https://gjmcn.github.io/atomic-agents-vis/#/?id=drawing-order). |
 
 ### Methods <small>&ndash; basic</small>
 
