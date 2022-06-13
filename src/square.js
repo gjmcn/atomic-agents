@@ -21,11 +21,26 @@ export class Square extends Agent {
   static vis3dOptions = new Set([...Agent.vis3dOptions,
     'tileColor',
     'tileTexture',
+    'padding',
+    'useFaceColor',
+    'topColor',
+    'bottomColor',
+    'rightColor',
+    'frontColor',
+    'leftColor',
+    'backColor',
   ]);
   
   static updatableVis3dOptions = new Set([...Agent.updatableVis3dOptions,
     'tileColor',
     'tileTexture',
+    'padding',
+    'topColor',
+    'bottomColor',
+    'rightColor',
+    'frontColor',
+    'leftColor',
+    'backColor',
   ]);
 
   constructor(options) {
