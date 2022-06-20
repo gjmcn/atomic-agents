@@ -45,6 +45,8 @@ export class Simulation {
     'groundColor',
     'groundTexture',
     'groundCheckerColors',
+    'images',
+    'meshes'
   ]);
   
   static updatableVis3dOptions = new Set([
