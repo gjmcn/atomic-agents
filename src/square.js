@@ -24,6 +24,7 @@ export class Square extends Agent {
     'xScale',
     'yScale',
     'faceColors',
+    'mesh',
   ]);
   
   static updatableVis3dOptions = new Set([...Agent.updatableVis3dOptions,
@@ -31,6 +32,7 @@ export class Square extends Agent {
     'tileTexture',
     'xScale',
     'yScale',
+    'mesh',
   ]);
 
   constructor(options) {
