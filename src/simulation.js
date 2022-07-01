@@ -1365,4 +1365,92 @@ export class Simulation {
   
   }
 
+  // returns an object with properties:
+  // - costs: a map-of-maps, where costs.get(sq1).get(sq2) is the cost of the
+  //          optimal path from sq1 to sq2
+  // - getRoute: function, getRoute(sq1, sq2) returns an array of squares: the
+  //             optimal route from sq1 to sq2 
+  routes(getSquareCost, getEdgeCost) {
+
+    // Floyd-Warshall - setup
+    const squareCosts = new Map();
+    const edgeCosts = new Map();
+    const next = new Map();
+    for (let sq1 of this.squares) {
+      squareCosts.set(sq1, getSquareCost(sq1));
+      const edgeCostsRow = new Map();
+      const nextRow = new Map();
+      edgeCosts.set(sq1, edgeCostsRow);
+      next.set(sq1, nextRow);
+      for (let sq2 of this.squares) {
+        if (sq1 === sq2) {
+          edgeCostsRow.set(sq2, 0);
+          nextRow.set(sq2, sq2);
+        }
+        else {
+          edgeCostsRow.set(sq2, Infinity);
+        }
+      }
+    }
+    const { nx, ny, squares: gridSquares } = this._grid;
+    function useEdgeWeight(sq1, sq2) {
+      edgeCosts.get(sq1).set(sq2, getEdgeCost(sq1, sq2) + squareCosts.get(sq2));
+      edgeCosts.get(sq2).set(sq1, getEdgeCost(sq2, sq1) + squareCosts.get(sq1));
+      next.get(sq1).set(sq2, sq2);
+      next.get(sq2).set(sq1, sq1);
+    }
+    for (let i = 0; i < ny; i++) {
+      for (let j = 0; j < nx; j++) {
+        if (i < ny - 1) {
+          useEdgeWeight(gridSquares[i][j], gridSquares[i + 1][j]);  // square below
+        }
+        if (j < nx - 1) {
+          useEdgeWeight(gridSquares[i][j], gridSquares[i][j + 1]);  // square to right
+        }
+      }
+    }
+
+    // Floyd-Warshall - compute shortest paths
+    const finiteCostSquares =
+      this.squares.filter(sq => squareCosts.get(sq) < Infinity, 'array');
+    for (let sq3 of finiteCostSquares) {
+      const edgeCostsRow_sq3 = edgeCosts.get(sq3);
+      for (let sq1 of this.squares) {
+        if (sq1 === sq3) {
+          continue;
+        }
+        const edgeCostsRow_sq1 = edgeCosts.get(sq1);
+        const nextRow_sq1 = next.get(sq1);
+        for (let sq2 of finiteCostSquares) {
+          if (sq1 === sq2 || sq2 === sq3) {
+            continue;
+          }
+          const eNew = edgeCostsRow_sq1.get(sq3) + edgeCostsRow_sq3.get(sq2);
+          if (eNew < edgeCostsRow_sq1.get(sq2)) {
+            edgeCostsRow_sq1.set(sq2, eNew);
+            nextRow_sq1.set(sq2, nextRow_sq1.get(sq3));
+          }
+        }
+      }
+    }
+
+    // function to get optimal route between any 2 squares
+    function getRoute(sq1, sq2) {
+      if (next.get(sq1).get(sq2) === undefined) {
+        return null;
+      }
+      const route = [sq1];
+      let s = sq1;
+      while(s !== sq2) {
+        s = next.get(s).get(sq2);
+        route.push(s);
+      }
+      return route;
+    }
+
+    // return edge costs and getRoute function
+    return { costs: edgeCosts, getRoute };
+
+  }
+
 }
