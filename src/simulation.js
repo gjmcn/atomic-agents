@@ -1417,21 +1417,24 @@ export class Simulation {
       }
     }
     const { nx, ny, squares: gridSquares } = this._grid;
-    function useEdgeWeight(sq1, sq2, useReverseEdge) {
-      edgeCosts.get(sq1).set(
-        sq2, getEdgeCost(sq1, sq2) + squareCosts.get(sq2));
-      next.get(sq1).set(sq2, sq2);
-      if (useReverseEdge) {
-        edgeCosts.get(sq2).set(sq1,
-          getEdgeCost(sq2, sq1) + squareCosts.get(sq1));
-        next.get(sq2).set(sq1, sq1);
+    function setEdgeCost(sq1, sq2) {
+      const c = getEdgeCost(sq1, sq2) + squareCosts.get(sq2);
+      if (Number.isFinite(c)) {
+        edgeCosts.get(sq1).set(sq2, c);
+        next.get(sq1).set(sq2, sq2);
+      }
+    }
+    function addEdge(sq1, sq2, addReverseEdge) {
+      setEdgeCost(sq1, sq2);
+      if (addReverseEdge) {
+        setEdgeCost(sq2, sq1);
       }
     }
     if (edges === true) {
       for (let sq1 of this.squares) {
         for (let sq2 of this.squares) {
           if (sq1 !== sq2) {
-            useEdgeWeight(sq1, sq2);
+            addEdge(sq1, sq2);
           }
         }
       }
@@ -1440,34 +1443,30 @@ export class Simulation {
       if (edges === 4 || edges === 8) {
         for (let i = 0; i < ny; i++) {
           for (let j = 0; j < nx; j++) {
-            if (i < ny - 1) {
-              useEdgeWeight(  // square below
-                gridSquares[i][j], gridSquares[i + 1][j], true);
+            if (i < ny - 1) {  // squares below
+              addEdge(gridSquares[i][j], gridSquares[i + 1][j], true);
               if (edges === 8) {
-                if (j > 0) {  //
-                  useEdgeWeight(  // square below-left
-                    gridSquares[i][j], gridSquares[i + 1][j - 1], true);
+                if (j > 0) {  // square below-left
+                  addEdge(gridSquares[i][j], gridSquares[i + 1][j - 1], true);
                 }
-                if (j < nx - 1) {
-                  useEdgeWeight(  // square below-right
-                    gridSquares[i][j], gridSquares[i + 1][j + 1], true);
+                if (j < nx - 1) {  // square below-right
+                  addEdge(gridSquares[i][j], gridSquares[i + 1][j + 1], true);
                 }
               }
             }
-            if (j < nx - 1) { 
-              useEdgeWeight(  // square to right
-                gridSquares[i][j], gridSquares[i][j + 1], true);
+            if (j < nx - 1) {  // square to right
+              addEdge(gridSquares[i][j], gridSquares[i][j + 1], true);
             }
           }
         }
       }
-      for (let [sqs1, sqs2, useReverseEdge] of extraEdges) {
+      for (let [sqs1, sqs2, addReverseEdge] of extraEdges) {
         sqs1 = this._uniqueSquares(sqs1);
         sqs2 = this._uniqueSquares(sqs2);
         for (let sq1 of sqs1) {
           for (let sq2 of sqs2) {
             if (sq1 !== sq2) {
-              useEdgeWeight(sq1, sq2, useReverseEdge);
+              addEdge(sq1, sq2, addReverseEdge);
             }
           }
         }
@@ -1502,19 +1501,19 @@ export class Simulation {
     return {
 
       cost(sq1, sq2) {
-        edgeCosts.get(sq1).get(sq2);
+        return edgeCosts.get(sq1).get(sq2);
       },
 
-      next(sq1, target) {
-        return next.get(sq1).get(target) ?? null;
+      next(sq1, sq2) {
+        return next.get(sq1).get(sq2) ?? null;
       },
 
       route(sq1, sq2) {
         if (next.get(sq1).get(sq2) === undefined) {
           return null;
         }
-        const route = [sq1];
         let s = sq1;
+        const route = [s];
         while(s !== sq2) {
           s = next.get(s).get(sq2);
           route.push(s);
@@ -1531,17 +1530,16 @@ export class Simulation {
           let minCost = Infinity;
           let bestTarget = null;
           for (let target of targets) {
-            tmpMinCost = Math.min(minCost, edgeCostsRow.get(target));
-            if (tmpMinCost < minCost) {
-              minCost = tmpMinCost;
+            if (edgeCostsRow.get(target) < minCost) {
+              minCost = edgeCostsRow.get(target);
               bestTarget = target;
             }
-            bestMap.set(source, {
-              target: bestTarget,
-              cost: minCost,
-              next: bestTarget ? next.get(source).get(bestTarget) : null
-            });
           }
+          bestMap.set(source, {
+            target: bestTarget,
+            cost: minCost,
+            next: bestTarget ? next.get(source).get(bestTarget) : null
+          });
         }
         return bestMap; 
       },
