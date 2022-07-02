@@ -1378,13 +1378,15 @@ export class Simulation {
       squareCost = 0,
       // edge cost: number or function (f(sq1, sq2) -> cost)
       edgeCost = 0,
-      // edges: false, true, 4 (neighbors) or 8 (neighbors); if false and
-      // extraEdges is empty, there are no paths!
+      // edges: false, true, 4 (neighbors) or 8 (neighbors); if edges is false
+      // and extraEdges is empty, there are no paths!
       edges = null,             
-      // additional edges: each element should be [sqs1, sqs2]; each of sqs1 and
-      // sqs2 is flattened with _uniqueSquares and edges are added for all
-      // sqs1->sqs2 pairs of squares; use [sqs1, sqs2, true] to also add edges
-      // for sqs2->sqs1 pairs; extraEdges is ignored if edges is true
+      // additional edges: each element should be [sqs1, sqs2, cost]; each of
+      // sqs1 and sqs2 is flattened with _uniqueSquares and edges are added for
+      // all sqs1->sqs2 pairs of squares; cost should be a number or a function
+      // (f(sq1, sq2) -> cost); use [sqs1, sqs2, cost, true] to also add edges
+      // for sqs2->sqs1 pairs; if a given edge has already been set from edges,
+      // extraEdges overwrites it (as long as the new edge cost is finite)
       extraEdges = []
     } = {}) {
 
@@ -1417,8 +1419,8 @@ export class Simulation {
       }
     }
     const { nx, ny, squares: gridSquares } = this._grid;
-    function setEdgeCost(sq1, sq2) {
-      const c = getEdgeCost(sq1, sq2) + squareCosts.get(sq2);
+    function setEdgeCost(sq1, sq2, f = getEdgeCost) {
+      const c = f(sq1, sq2) + squareCosts.get(sq2);
       if (Number.isFinite(c)) {
         edgeCosts.get(sq1).set(sq2, c);
         next.get(sq1).set(sq2, sq2);
@@ -1439,34 +1441,36 @@ export class Simulation {
         }
       }
     }
-    else {
-      if (edges === 4 || edges === 8) {
-        for (let i = 0; i < ny; i++) {
-          for (let j = 0; j < nx; j++) {
-            if (i < ny - 1) {  // squares below
-              addEdge(gridSquares[i][j], gridSquares[i + 1][j], true);
-              if (edges === 8) {
-                if (j > 0) {  // square below-left
-                  addEdge(gridSquares[i][j], gridSquares[i + 1][j - 1], true);
-                }
-                if (j < nx - 1) {  // square below-right
-                  addEdge(gridSquares[i][j], gridSquares[i + 1][j + 1], true);
-                }
+    else if (edges === 4 || edges === 8) {
+      for (let i = 0; i < ny; i++) {
+        for (let j = 0; j < nx; j++) {
+          if (i < ny - 1) {  // squares below
+            addEdge(gridSquares[i][j], gridSquares[i + 1][j], true);
+            if (edges === 8) {
+              if (j > 0) {  // square below-left
+                addEdge(gridSquares[i][j], gridSquares[i + 1][j - 1], true);
+              }
+              if (j < nx - 1) {  // square below-right
+                addEdge(gridSquares[i][j], gridSquares[i + 1][j + 1], true);
               }
             }
-            if (j < nx - 1) {  // square to right
-              addEdge(gridSquares[i][j], gridSquares[i][j + 1], true);
-            }
+          }
+          if (j < nx - 1) {  // square to right
+            addEdge(gridSquares[i][j], gridSquares[i][j + 1], true);
           }
         }
       }
-      for (let [sqs1, sqs2, addReverseEdge] of extraEdges) {
-        sqs1 = this._uniqueSquares(sqs1);
-        sqs2 = this._uniqueSquares(sqs2);
-        for (let sq1 of sqs1) {
-          for (let sq2 of sqs2) {
-            if (sq1 !== sq2) {
-              addEdge(sq1, sq2, addReverseEdge);
+    }
+    for (let [sqs1, sqs2, cost, addReverseEdge] of extraEdges) {
+      sqs1 = this._uniqueSquares(sqs1);
+      sqs2 = this._uniqueSquares(sqs2);
+      const f = typeof cost === 'function' ? cost: () => cost;
+      for (let sq1 of sqs1) {
+        for (let sq2 of sqs2) {
+          if (sq1 !== sq2) {
+            setEdgeCost(sq1, sq2, f);
+            if (addReverseEdge) {
+              setEdgeCost(sq2, sq1, f);
             }
           }
         }
