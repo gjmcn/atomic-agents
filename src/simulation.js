@@ -1365,13 +1365,37 @@ export class Simulation {
   
   }
 
-  // returns an object with properties:
-  // - costs: a map-of-maps, where costs.get(sq1).get(sq2) is the cost of the
-  //          optimal path from sq1 to sq2
-  // - getRoute: function, getRoute(sq1, sq2) returns an array of squares: the
-  //             optimal route from sq1 to sq2 
-  routes(getSquareCost, getEdgeCost) {
+  // returns an object of functions:
+  // - cost(sq1, sq2): cost of optimal path from sq1 to sq2
+  // - next(sq1, sq2): next square on optimal path from sq1 to sq2
+  // - route(sq1, sq2): optimal route from sq1 to sq2 (an array of squares)
+  // - best(sources, targets): sources and targets are flattened to squares
+  //   using _uniqueSquares; best returns a map: each key is a source square,
+  //   the value is an object {target, cost, next} specifying the min cost to a
+  //   target square, the target square, and the next square of the optimal path
+  routes({
+      // square cost (for entering square): number or function (f(sq) -> cost)
+      squareCost = 0,
+      // edge cost: number or function (f(sq1, sq2) -> cost)
+      edgeCost = 0,
+      // edges: false, true, 4 (neighbors) or 8 (neighbors); if false and
+      // extraEdges is empty, there are no paths!
+      edges = null,             
+      // additional edges: each element should be [sqs1, sqs2]; each of sqs1 and
+      // sqs2 is flattened with _uniqueSquares and edges are added for all
+      // sqs1->sqs2 pairs of squares; use [sqs1, sqs2, true] to also add edges
+      // for sqs2->sqs1 pairs; extraEdges is ignored if edges is true
+      extraEdges = []
+    } = {}) {
 
+    // cost functions
+    const getSquareCost = typeof squareCost === 'function'
+      ? squareCost
+      : () => squareCost;
+    const getEdgeCost = typeof edgeCost === 'function'
+      ? edgeCost
+      : () => edgeCost; 
+  
     // Floyd-Warshall - setup
     const squareCosts = new Map();
     const edgeCosts = new Map();
@@ -1393,19 +1417,59 @@ export class Simulation {
       }
     }
     const { nx, ny, squares: gridSquares } = this._grid;
-    function useEdgeWeight(sq1, sq2) {
-      edgeCosts.get(sq1).set(sq2, getEdgeCost(sq1, sq2) + squareCosts.get(sq2));
-      edgeCosts.get(sq2).set(sq1, getEdgeCost(sq2, sq1) + squareCosts.get(sq1));
+    function useEdgeWeight(sq1, sq2, useReverseEdge) {
+      edgeCosts.get(sq1).set(
+        sq2, getEdgeCost(sq1, sq2) + squareCosts.get(sq2));
       next.get(sq1).set(sq2, sq2);
-      next.get(sq2).set(sq1, sq1);
+      if (useReverseEdge) {
+        edgeCosts.get(sq2).set(sq1,
+          getEdgeCost(sq2, sq1) + squareCosts.get(sq1));
+        next.get(sq2).set(sq1, sq1);
+      }
     }
-    for (let i = 0; i < ny; i++) {
-      for (let j = 0; j < nx; j++) {
-        if (i < ny - 1) {
-          useEdgeWeight(gridSquares[i][j], gridSquares[i + 1][j]);  // square below
+    if (edges === true) {
+      for (let sq1 of this.squares) {
+        for (let sq2 of this.squares) {
+          if (sq1 !== sq2) {
+            useEdgeWeight(sq1, sq2);
+          }
         }
-        if (j < nx - 1) {
-          useEdgeWeight(gridSquares[i][j], gridSquares[i][j + 1]);  // square to right
+      }
+    }
+    else {
+      if (edges === 4 || edges === 8) {
+        for (let i = 0; i < ny; i++) {
+          for (let j = 0; j < nx; j++) {
+            if (i < ny - 1) {
+              useEdgeWeight(  // square below
+                gridSquares[i][j], gridSquares[i + 1][j], true);
+              if (edges === 8) {
+                if (j > 0) {  //
+                  useEdgeWeight(  // square below-left
+                    gridSquares[i][j], gridSquares[i + 1][j - 1], true);
+                }
+                if (j < nx - 1) {
+                  useEdgeWeight(  // square below-right
+                    gridSquares[i][j], gridSquares[i + 1][j + 1], true);
+                }
+              }
+            }
+            if (j < nx - 1) { 
+              useEdgeWeight(  // square to right
+                gridSquares[i][j], gridSquares[i][j + 1], true);
+            }
+          }
+        }
+      }
+      for (let [sqs1, sqs2, useReverseEdge] of extraEdges) {
+        sqs1 = this._uniqueSquares(sqs1);
+        sqs2 = this._uniqueSquares(sqs2);
+        for (let sq1 of sqs1) {
+          for (let sq2 of sqs2) {
+            if (sq1 !== sq2) {
+              useEdgeWeight(sq1, sq2, useReverseEdge);
+            }
+          }
         }
       }
     }
@@ -1434,22 +1498,55 @@ export class Simulation {
       }
     }
 
-    // function to get optimal route between any 2 squares
-    function getRoute(sq1, sq2) {
-      if (next.get(sq1).get(sq2) === undefined) {
-        return null;
-      }
-      const route = [sq1];
-      let s = sq1;
-      while(s !== sq2) {
-        s = next.get(s).get(sq2);
-        route.push(s);
-      }
-      return route;
-    }
+    // return object
+    return {
 
-    // return edge costs and getRoute function
-    return { costs: edgeCosts, getRoute };
+      cost(sq1, sq2) {
+        edgeCosts.get(sq1).get(sq2);
+      },
+
+      next(sq1, target) {
+        return next.get(sq1).get(target) ?? null;
+      },
+
+      route(sq1, sq2) {
+        if (next.get(sq1).get(sq2) === undefined) {
+          return null;
+        }
+        const route = [sq1];
+        let s = sq1;
+        while(s !== sq2) {
+          s = next.get(s).get(sq2);
+          route.push(s);
+        }
+        return route;
+      },
+
+      best: (sources, targets) => {
+        sources = this._uniqueSquares(sources);
+        targets = this._uniqueSquares(targets);
+        bestMap = new Map();
+        for (let source of sources) {
+          const edgeCostsRow = edgeCosts.get(source);
+          let minCost = Infinity;
+          let bestTarget = null;
+          for (let target of targets) {
+            tmpMinCost = Math.min(minCost, edgeCostsRow.get(target));
+            if (tmpMinCost < minCost) {
+              minCost = tmpMinCost;
+              bestTarget = target;
+            }
+            bestMap.set(source, {
+              target: bestTarget,
+              cost: minCost,
+              next: bestTarget ? next.get(source).get(bestTarget) : null
+            });
+          }
+        }
+        return bestMap; 
+      },
+
+    }
 
   }
 
