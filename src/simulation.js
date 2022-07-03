@@ -1380,7 +1380,7 @@ export class Simulation {
       edgeCost = 0,
       // edges: false, true, 4 (neighbors) or 8 (neighbors); if edges is false
       // and extraEdges is empty, there are no paths!
-      edges = null,             
+      edges = false,             
       // additional edges: each element should be [sqs1, sqs2, cost]; each of
       // sqs1 and sqs2 is flattened with _uniqueSquares and edges are added for
       // all sqs1->sqs2 pairs of squares; cost should be a number or a function
