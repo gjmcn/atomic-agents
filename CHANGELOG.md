@@ -1,3 +1,7 @@
+#### 0.1.9 &mdash; July 6, 2022
+
+* Add `routes` method.
+
 #### 0.1.8 &mdash; June 12, 2022
 
 * Add `direction` property to `Square` and `Zone`.

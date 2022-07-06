@@ -1388,7 +1388,7 @@ export class Simulation {
       // for sqs2->sqs1 pairs; if a given edge has already been set from edges,
       // extraEdges overwrites it (as long as the new edge cost is finite)
       extraEdges = []
-    } = {}) {
+    }) {
 
     // cost functions
     const getSquareCost = typeof squareCost === 'function'
@@ -1528,7 +1528,7 @@ export class Simulation {
       best: (sources, targets) => {
         sources = this._uniqueSquares(sources);
         targets = this._uniqueSquares(targets);
-        bestMap = new Map();
+        const bestMap = new Map();
         for (let source of sources) {
           const edgeCostsRow = edgeCosts.get(source);
           let minCost = Infinity;
@@ -1540,8 +1540,8 @@ export class Simulation {
             }
           }
           bestMap.set(source, {
-            target: bestTarget,
             cost: minCost,
+            target: bestTarget,
             next: bestTarget ? next.get(source).get(bestTarget) : null
           });
         }
