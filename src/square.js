@@ -23,6 +23,7 @@ export class Square extends Agent {
     'tileTexture',
     'xScale',
     'yScale',
+    'zScale',
     'faceColors',
     'mesh',
   ]);
@@ -32,6 +33,7 @@ export class Square extends Agent {
     'tileTexture',
     'xScale',
     'yScale',
+    'zScale',
     'mesh',
   ]);
 

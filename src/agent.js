@@ -47,7 +47,6 @@ export class Agent {
   static vis3dOptions = new Set([
     'color',
     'alpha',
-    'updateZ',
   ]);
   
   static updatableVis3dOptions = new Set([
@@ -57,6 +56,7 @@ export class Agent {
   constructor(options = {}) {
     this.x           = options.x       ?? 0;
     this.y           = options.y       ?? 0;
+    this.z           = options.z       ?? null;
     this.state       = options.state   ?? {};
     this.history     = options.history ?? {};
     if (options.updateState) this.updateState = options.updateState;
@@ -65,10 +65,8 @@ export class Agent {
     this._labels        = new Map();
     this._resetOnRemove = null; 
     this.__agent        = true;
-    // also:
-    // - _visXXX and _interactionXXX properties set by vis and vis3d methods
-    //   of agent subtypes
-    // - z and zHeight set explicitly by user as required
+    // also: _visXXX and _interactionXXX properties set by vis and vis3d methods
+    //       of agent subtypes
   }
 
   _validateSimulation(simulation) {
