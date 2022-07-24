@@ -58,6 +58,21 @@ export class Polyline {
   
   }
 
+  // returns true if distance between first point and last point is less than
+  // 1/1000 the length of the polyline
+  get isClosed() {
+    return this.pts[0].distance(this.pts.at(-1)) < this.lineLength / 1000;
+  }
+
+  // copy polyline: if close truthy and calling polyline not closed, adds end
+  // point identical to first point
+  copy(close) {
+    return new Polyline(close && !this.isClosed
+      ? [...this.pts, this.pts[0]]
+      : this.pts
+    );
+  }
+
   // transform: scale and rotate about firt point, then translate
   transform({ scale = 1, translate = [0, 0], rotate = 0 }) {
     if (scale === 1 && rotate === 0) {

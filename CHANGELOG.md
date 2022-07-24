@@ -1,3 +1,7 @@
+#### 0.1.10 &mdash; July 24, 2022
+
+* Add `isClosed` and `copy` to `Polyline`.
+
 #### 0.1.9 &mdash; July 6, 2022
 
 * Add `routes` method.

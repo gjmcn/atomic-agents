@@ -900,14 +900,16 @@ The polyline constructor and methods that create new polylines are not particula
 | `segLengths` | array | Length of each segment. |
 | `segLengthsCumu` | array | Cumulative segment lengths. The first element of the array is `0` so `segLengthsCumu` has one more element than `segLengths`. |
 | `lineLength` | number | Length of the polyline; equal to the last entry of `segLengthsCumu`. |
+| `isClosed` | boolean | `true` if the distance between the first point and the last point is less than 1/1000 the length of the polyline. |
 
 ### Methods <small>&ndash; instance</small>
 
 | Method | Description | Return |
 |:---|:---|:---|
+| `copy(close)` | Copy polyline. If `close` is truthy and the calling polyline is not closed, `copy` adds an end point that is identical to the first point. | polyline |
 | `simplify(tolerance = 1,`<br>&emsp;` highQuality)` | Simplify polyline &mdash; returns a new polyline with fewer points. Increase `tolerance` for greater simplification. If `higherQuality` is `true`, the simplification is of higher quality, but takes longer to compute. See [simplify-js](http://mourner.github.io/simplify-js/) for more details. | polyline |
 | `transform(options)` | Transform polyline &mdash; returns a new polyline. The polyline is scaled and rotated about its first point, then translated. `options` is an object; valid properties and their defaults are:<ul style="margin:0"><li><code>scale = 1</code></li><li><code>rotate = 0</code> (radians)</li><li><code>translate = [0, 0]</code></li></ul> | polyline |
-| `pointAt(t, wrap)` | Point on polyline at curve parameter `t` (which runs from 0 to the length of the polyline). If `wrap` is `true`, a `t` value of less than 0 or greater than the polyline's length is 'wrapped' &mdash; this option is typically used when the first and last points of the polyline are the same or very close together. If `wrap` is `false`, `pointAt` returns the start of the polyline when `t` is negative, and the end of the polyline when `t` is greater than the polyline's length. | [vector](#vector) |
+| `pointAt(t, wrap)` | Point on polyline at curve parameter `t` (which runs from 0 to the length of the polyline). If `wrap` is `true`, a `t` value of less than 0 or greater than the polyline's length is 'wrapped' &mdash; this option is often used when the polyline is closed. If `wrap` is falsy, `pointAt` returns the start of the polyline when `t` is negative, and the end of the polyline when `t` is greater than the polyline's length. | [vector](#vector) |
 | `pointAtFrac(t, wrap)` | As `pointAt`, but for a parameter that runs from 0 to 1. | [vector](#vector) |
 | `walk(n)` | A new polyline of `n` points formed from equally spaced intervals along the calling polyline. The new polyline has the same start and end points as the calling polyline. | polyline |
 | `pointNearest(p, segIndices)` | Returns information about the nearest point on the polyline to point `p` &mdash; an object with `x` and `y` properties. To only look for the nearest point on a subset of segments, pass an array of segment indices as `segIndices`. The returned object has properties:<ul style="margin:0"><li>`point`: vector, nearest point on polyline (or on specified segments).</li><li>`param`: number, value of curve parameter corresponding to nearest point.</li><li>`segIndex`: number, index of segment of nearest point.</li><li>`scaProjec`: number, scalar projection of `p` onto segment of nearest point.</li><li>`dist`: number, distance from `p` to nearest point.</li></ul> | object |

@@ -150,3 +150,17 @@ test('pointNearest, 4', () => {
   expect(segIndex).toBe(2);
   expect(dist).toBeCloseTo(0.7071);
 });
+
+test('isClosed, 1', () => {
+  expect(p1.isClosed).toBe(false);
+});
+test('isClosed, 2', () => {
+  expect(p2.isClosed).toBe(true);
+});
+
+test('copy, 1', () => {
+  expect(p1.copy()).toStrictEqual(p1);
+});
+test('copy, 2', () => {
+  expect(p1.copy(true)).toStrictEqual(p2);
+});
