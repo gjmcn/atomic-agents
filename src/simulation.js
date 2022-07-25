@@ -405,6 +405,11 @@ export class Simulation {
       : random.uniform_01() * this.height;
   }
 
+  randomSquare() {
+    const i = random.int(this.squares.size)();
+    return this._grid[Math.floor(i / this._grid.nx)][i % this._grid.nx];
+  }
+
   fitGrid(options) {
     return gridInRect(this, options);
   }
