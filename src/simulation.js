@@ -18,6 +18,7 @@ import { Zone } from './zone.js';
 import { Actor } from './actor.js';
 import { regions } from './regions.js';
 import { randomCircles } from './random-circles.js';
+import { autotile } from './autotile.js';
 
 export class Simulation {
 
@@ -481,6 +482,10 @@ export class Simulation {
 
   regions(options) {
     return regions(this, options);
+  }
+
+  autotile(options) {
+    return autotile(this, options);
   }
 
   // ========== proximity methods ==========

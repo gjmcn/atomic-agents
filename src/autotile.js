@@ -43,7 +43,10 @@ export function autotile(sim, options) {
   //      ≥ 0, but probs need not be normalised - only relative values matter.
   //      If prob is a function, it is passed the square the tile is being
   //      considered for and returns the probability
-  const { tiles } = options;
+  const tiles = structuredClone(options.tiles);
+  for (let tileInfo of Object.values(tiles)) {
+    tileInfo.prob ??= 1;
+  }
 
   // edges: object. Each key is an edge name; the value is a set of edge names
   //  that the key-edge can be matched with.
@@ -55,7 +58,12 @@ export function autotile(sim, options) {
   //  not included in startTiles.
   //  - the 'edge validity' of start tiles is not checked - i.e. adjacent start
   //    tiles need not obey the edge relationships in the edges option. 
-  const { startTiles } = options ?? new Map;
+  const startTiles = new Map;
+  for (let [sq, tileInfo] of options.startTiles || []) {
+    tileInfo = {...tileInfo};
+    tileInfo.rotationCode ??= 0;
+    startTiles.set(sq, tileInfo);
+  }
 
   // other options
   let {
@@ -280,14 +288,14 @@ export function autotile(sim, options) {
   attemptsLoop: while (retry-- > 0) {
 
     // candidates, assignments and free squares
-    assignments = structuredClone(startTiles);  // may be empty
+    assignments = new Map(startTiles);
     const allCandidates = new Map;
     const freeSquares = new XSet(sim.squares);
     freeSquares.deletes(assignments.keys());
 
     // given an assigned-to square, update candidates of neighboring squares
     function updateCandidatesOfNeighbors(sq, tileName, rotationCode) {
-      for (let [compassDirection, neighborSq] 
+      for (let [compassDirection, neighborSq]
           of Object.entries(sq.compassMain())) {
         if (neighborSq && freeSquares.has(neighborSq)) {
           const direction = compassIndices[compassDirection];
