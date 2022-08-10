@@ -43,9 +43,11 @@ export function autotile(sim, options) {
   //      ≥ 0, but probs need not be normalised - only relative values matter.
   //      If prob is a function, it is passed the square the tile is being
   //      considered for and returns the probability
-  const tiles = structuredClone(options.tiles);
-  for (let tileInfo of Object.values(tiles)) {
+  const tiles = {};
+  for (let [tileName, tileInfo] of Object.entries(options.tiles)) {
+    tileInfo = {...tileInfo};
     tileInfo.prob ??= 1;
+    tiles[tileName] = tileInfo;
   }
 
   // edges: object. Each key is an edge name; the value is a set of edge names
@@ -193,7 +195,7 @@ export function autotile(sim, options) {
   let initCandidates;
   {
     if (useProbs &&
-         [...tilesMap.entries()].some(({prob}) => typeof prob === 'function')) {
+         [...tilesMap.values()].some(({prob}) => typeof prob === 'function')) {
       initCandidates = function(sq) {
         const candidates = new Map;
         for (let [tileName, { rotate, prob }] of tilesMap) {
@@ -202,7 +204,7 @@ export function autotile(sim, options) {
             candidates.set(tileName, new Set(rotate ? [0, 1, 2, 3] : [0]));
           }
         }
-        candidates.__probInfo = updateProbInfo(sq, candidates);
+        updateProbInfo(sq, candidates);
         return candidates;
       };
     }
@@ -213,8 +215,13 @@ export function autotile(sim, options) {
           baseCandidates.set(tileName, new Set(rotate ? [0, 1, 2, 3] : [0]));
         }
       }
-      baseCandidates.__probInfo = updateProbInfo(null, baseCandidates);
-      initCandidates = () => structuredClone(baseCandidates);
+      updateProbInfo(null, baseCandidates);
+      initCandidates = function() {
+        const candidates = structuredClone(baseCandidates);
+        candidates.__probInfo =  // clone of map does not include added properties
+          baseCandidates.__probInfo;
+        return candidates;
+      };
     }
   }
 
@@ -259,7 +266,7 @@ export function autotile(sim, options) {
       }
     }
 
-    candidates.__probInfo = updateProbInfo(sq, candidates);
+    updateProbInfo(sq, candidates);
     return candidates;
 
   }
