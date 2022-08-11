@@ -305,11 +305,18 @@ export function autotile(sim, options) {
   // ========== try loop ==========
 
   let assignments;
+  let bestAssignments;
   let backtrackCounter = -1;
   let attempts = 0;
   attemptsLoop: while (attempts < retry) {
 
     attempts++;
+
+    // store best attempt so far
+    if (assignments &&
+        (!bestAssignments || bestAssignments.size < assignments.size)) {
+      bestAssignments = assignments;
+    }
 
     // initial assignments
     backtrackCounter = backtrackCounter === backtrack
@@ -419,9 +426,11 @@ export function autotile(sim, options) {
   }
 
   return {
-    assignments,
     complete: assignments.size === sim.squares.size,
-    attempts
+    assignments: bestAssignments?.size > assignments.size
+      ? bestAssignments
+      : assignments,
+    attempts,
   };
 
 }
