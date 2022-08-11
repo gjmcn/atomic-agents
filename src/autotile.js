@@ -50,9 +50,26 @@ export function autotile(sim, options) {
     tiles[tileName] = tileInfo;
   }
 
-  // edges: object. Each key is an edge name; the value is a set of edge names
-  //  that the key-edge can be matched with.
-  const { edges } = options;
+  // edges: object. Each key is an edge name; the value is the edge name or
+  //  array of edge names that the key-edge can be matched with. If an edge
+  //  name does not appear as a key, it is assumed that the edge can only match
+  //  itself. Omit the edges option entirely if all edges only match themselves. 
+  const edgeNames = new XSet;
+  for (let { edges } of Object.values(tiles)) {
+    edgeNames[typeof edges === 'string' ? 'add' : 'adds'](edges);
+  }
+  const edges = {};
+  for (let edgeName of edgeNames) {
+    const matchingEdges = options.edges?.[edgeName];
+    if (matchingEdges) {
+      edges[edgeName] = new Set(
+        typeof matchingEdges === 'string' ? [matchingEdges] : matchingEdges
+      );
+    }
+    else {
+      edges[edgeName] = new Set([edgeName]);
+    }
+  }  
 
   // startTiles: if used, a map where each key is a square and the value is a
   //  { name, rotationCode = 0 } object - see the format of the map returned by
@@ -73,23 +90,15 @@ export function autotile(sim, options) {
   } = options;
 
 
-  // ========== check edge and tile names ==========
+  // ========== tile names and tiles map ==========
 
   const tileNames = [];
   const tilesMap = new Map;
-  const edgeNames = new XSet(Object.keys(edges));
   let useProbs = false;
   for (let [tileName, tileInfo] of Object.entries(tiles)) {
     tileNames.push(tileName);
     tilesMap.set(tileName, tileInfo);
     if (tileInfo.prob !== 1) useProbs = true;
-    for (let edgeName of Array.isArray(tileInfo.edges)
-        ? tileInfo.edges : [tileInfo.edges]) {
-      if (!edgeNames.has(edgeName)) {
-        throw Error(
-          `tile edge '${edgeName}' is not listed in the edges option`);
-      }
-    }
   }
   for (let { name: tileName } of startTiles.values()) {
     if (!tilesMap.has(tileName)) {
