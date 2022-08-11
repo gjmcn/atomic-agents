@@ -4,13 +4,15 @@
 // (https://github.com/mxgmn/WaveFunctionCollapse) and simpler alternatives
 // (e.g. https://robertheaton.com/2018/12/17/wavefunction-collapse-algorithm/).
 //
-// Returns a {assignments, complete, attempts} object. The attempts property
-// indicates the number of attempts to find a solution. If no solution is found,
-// complete is false and assignments is null; otherwise, complete is true and
+// Returns a {complete, assignments, attempts, backtracks} object. The attempts
+// and backtracks properties indicates the total number of attempts and
+// backtracks the algorithm used. If a solution is found, complete is true and
 // assignments is a map where each key is a square, and the value is a {name,
 // rotationCode} object containing the name of the tile assigned to the square,
-// and the tile's rotation: 0-none, 1-90° clockwise, 2-180°, 3-270°. Square-tile
-// pairs are added to the assignments map in the order they are chosen.
+// and the tile's rotation: 0-none, 1-90° clockwise, 2-180°, 3-270°. If no
+// solution is found, complete is false and the assignments map contains the
+// assignments made on the last attempt. Square-tile pairs are added to the
+// assignments map in the order they are chosen.
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -86,12 +88,15 @@ export function autotile(sim, options) {
     startTiles.set(sq, tileInfo);
   }
 
-  // retry: number, max total number of attempts to find a solution
+  // retry: number, max allowed attempts to find a solution.
   const retry = options.retry ?? 100;
 
-  // backtrack: number, number of times attempt to find a solution by starting
-  //  from 2/3 of the way through the previous attempt
-  const backtrack = options.backtrack ?? 4;
+  // backtrack: boolean. An attempt fails if there is a square with no valid
+  //  tile candidates. If backtrack is true, the algorithm backtracks to the
+  //  last assigned-to neighbor of the no-candidates-square and chooses a
+  //  different tile for the neighbor so that the edge facing the
+  //  no-candidates-square is different.
+  const backtrack = options.backtrack ?? true;
   
 
   // ========== tile names and tiles map ==========
@@ -305,34 +310,20 @@ export function autotile(sim, options) {
   // ========== try loop ==========
 
   let assignments;
-  let bestAssignments;
-  let backtrackCounter = -1;
   let attempts = 0;
+  let backtracks = 0;
+  let backtrackInfo;
+  let backtrackSquares = new Set;
   attemptsLoop: while (attempts < retry) {
 
-    attempts++;
-
-    // store best attempt so far
-    if (assignments &&
-        (!bestAssignments || bestAssignments.size < assignments.size)) {
-      bestAssignments = assignments;
-    }
-
     // initial assignments
-    backtrackCounter = backtrackCounter === backtrack
-      ? 0
-      : backtrackCounter + 1;
-    if (backtrackCounter &&
-        assignments.size / (sim.squares.size - startTiles.size) < 0.1) {
-      backtrackCounter = 0;
-    }
-    if (backtrackCounter) {
-      assignments = new Map(
-        [...assignments].slice(0, Math.round(assignments.size * 2 / 3))
-      );
+    if (!backtrackInfo) {
+      attempts++;
+      backtrackSquares = new Set;
+      assignments = new Map(startTiles);
     }
     else {
-      assignments = new Map(startTiles);
+      backtracks++;
     }
 
     // candidates and free squares
@@ -346,17 +337,26 @@ export function autotile(sim, options) {
           of Object.entries(sq.compassMain())) {
         if (neighborSq && freeSquares.has(neighborSq)) {
           const direction = compassIndices[compassDirection];
+          const edgeAtDir =
+            edgeAtDirection(tiles[tileName].edges, rotationCode, direction);
           const filteredCandidates = updateCandidates(
             neighborSq,
-            edgeAtDirection(tiles[tileName].edges, rotationCode, direction),
+            edgeAtDir,
             (direction + 2) % 4,
             allCandidates.get(neighborSq)
           );
-          if (!filteredCandidates.__probInfo) return false;
+          if (!filteredCandidates.__probInfo) {
+            return {
+              square: sq,
+              success: false,
+              direction,
+              edgeName: edgeAtDir
+            };
+          };
           allCandidates.set(neighborSq, filteredCandidates);
         }
       }
-      return true;
+      return { success: true };
     }
 
     // if not using probs and no start tiles, assign to a random square - or
@@ -373,7 +373,7 @@ export function autotile(sim, options) {
 
     // compute/update candidates for neighbors of start tiles
     for (let [sq, {name, rotationCode}] of assignments) {
-      const success = updateCandidatesOfNeighbors(sq, name, rotationCode);
+      const { success } = updateCandidatesOfNeighbors(sq, name, rotationCode);
       if (!success) break attemptsLoop;
     }
 
@@ -394,30 +394,75 @@ export function autotile(sim, options) {
     while (freeSquares.size) {
       
       // choose next square and assign to it
-      let minEntropy = Infinity;
-      let possNextSquares = [];
-      for (let [sq, { __probInfo }] of allCandidates) {
-        const { entropy } = __probInfo;
-        if (entropy < minEntropy) {
-          minEntropy = entropy;
-          possNextSquares = [sq];
+      let chosenSq;
+      if (backtrackInfo) {
+        chosenSq = backtrackInfo.square;
+        const candidates = allCandidates.get(chosenSq);
+        for (let [tileName, turns] of candidates) {
+          const edges = tiles[tileName].edges;
+          for (let rotCode of turns) {
+            if (edgeAtDirection(edges, rotCode, backtrackInfo.direction) ===
+                backtrackInfo.edgeName) {
+              turns.delete(rotCode);
+              if (turns.size === 0) {
+                candidates.delete(tileName);
+                if (candidates.size === 0) {
+                  backtrackInfo = null;
+                  continue attemptsLoop;
+                }
+              }
+            }
+          }
         }
-        else if (entropy === minEntropy) {
-          possNextSquares.push(sq);
-        }
+        updateProbInfo(chosenSq, candidates);
+        backtrackInfo = null;
       }
-      const chosenSq = possNextSquares.length > 1
-        ? randomElement(possNextSquares)
-        : possNextSquares[0];
+      else {
+        let minEntropy = Infinity;
+        let possNextSquares = [];
+        for (let [sq, { __probInfo }] of allCandidates) {
+          const { entropy } = __probInfo;
+          if (entropy < minEntropy) {
+            minEntropy = entropy;
+            possNextSquares = [sq];
+          }
+          else if (entropy === minEntropy) {
+            possNextSquares.push(sq);
+          }
+        }
+        chosenSq = possNextSquares.length > 1
+          ? randomElement(possNextSquares)
+          : possNextSquares[0];
+      }
       const chosenTile = chooseTile(allCandidates.get(chosenSq));
       assignments.set(chosenSq, chosenTile);
       allCandidates.delete(chosenSq);
       freeSquares.delete(chosenSq);
 
       // update candidates of neighbors of chosen square
-      const success = updateCandidatesOfNeighbors(
+      const updateResult = updateCandidatesOfNeighbors(
         chosenSq, chosenTile.name, chosenTile.rotationCode);
-      if (!success) continue attemptsLoop;
+      if (!updateResult.success) {
+        if (backtrack) {
+          if (backtrackSquares.has(chosenSq)) {
+            backtrackInfo = null;
+            continue attemptsLoop;
+          }
+          backtrackSquares.add(chosenSq);
+          const newAssignments = new Map;
+          for (let [sq, tileInfo] of assignments) {
+            if (sq === chosenSq) {
+              assignments = newAssignments;
+              backtrackInfo = updateResult;
+              break;
+            }
+            else {
+              newAssignments.set(sq, tileInfo);
+            }
+          }
+        }
+        continue attemptsLoop;
+      }
     
     }
 
@@ -427,10 +472,9 @@ export function autotile(sim, options) {
 
   return {
     complete: assignments.size === sim.squares.size,
-    assignments: bestAssignments?.size > assignments.size
-      ? bestAssignments
-      : assignments,
+    assignments: assignments,
     attempts,
+    backtracks,
   };
 
 }
