@@ -4,11 +4,13 @@
 // (https://github.com/mxgmn/WaveFunctionCollapse) and simpler alternatives
 // (e.g. https://robertheaton.com/2018/12/17/wavefunction-collapse-algorithm/).
 //
-// Returns null if no valid assignment found. Otherwise, returns a map where
-// each key is a square, and the value is a {name, rotationCode} object
-// containing the name of the tile assigned to the square, and the tile's
-// rotation: 0-none, 1-90° clockwise, 2-180°, 3-270°. Square-tile pairs are
-// added to the map in the order they are chosen.
+// Returns a {assignments, complete, attempts} object. The attempts property
+// indicates the number of attempts to find a solution. If no solution is found,
+// complete is false and assignments is null; otherwise, complete is true and
+// assignments is a map where each key is a square, and the value is a {name,
+// rotationCode} object containing the name of the tile assigned to the square,
+// and the tile's rotation: 0-none, 1-90° clockwise, 2-180°, 3-270°. Square-tile
+// pairs are added to the assignments map in the order they are chosen.
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -84,11 +86,13 @@ export function autotile(sim, options) {
     startTiles.set(sq, tileInfo);
   }
 
-  // other options
-  let {
-    retry = 100,  // max number of tries to find a valid solution
-  } = options;
+  // retry: number, max total number of attempts to find a solution
+  const retry = options.retry ?? 100;
 
+  // backtrack: number, number of times attempt to find a solution by starting
+  //  from 2/3 of the way through the previous attempt
+  const backtrack = options.backtrack ?? 4;
+  
 
   // ========== tile names and tiles map ==========
 
@@ -301,10 +305,30 @@ export function autotile(sim, options) {
   // ========== try loop ==========
 
   let assignments;
-  attemptsLoop: while (retry-- > 0) {
+  let backtrackCounter = -1;
+  let attempts = 0;
+  attemptsLoop: while (attempts < retry) {
 
-    // candidates, assignments and free squares
-    assignments = new Map(startTiles);
+    attempts++;
+
+    // initial assignments
+    backtrackCounter = backtrackCounter === backtrack
+      ? 0
+      : backtrackCounter + 1;
+    if (backtrackCounter &&
+        assignments.size / (sim.squares.size - startTiles.size) < 0.1) {
+      backtrackCounter = 0;
+    }
+    if (backtrackCounter) {
+      assignments = new Map(
+        [...assignments].slice(0, Math.round(assignments.size * 2 / 3))
+      );
+    }
+    else {
+      assignments = new Map(startTiles);
+    }
+
+    // candidates and free squares
     const allCandidates = new Map;
     const freeSquares = new XSet(sim.squares);
     freeSquares.deletes(assignments.keys());
@@ -397,6 +421,7 @@ export function autotile(sim, options) {
   return {
     assignments,
     complete: assignments.size === sim.squares.size,
+    attempts
   };
 
 }
