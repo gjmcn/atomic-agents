@@ -212,6 +212,8 @@ __Constructor:__ `new Simulation(options = {})`, where `options` can be used to 
 | `xMaxIndex` | number |  | `width / gridStep - 1` (x-grid-index of squares in last column). |
 | `yMinIndex` | number |  | `0`  (y-grid-index of squares in first row). |
 | `yMaxIndex` | number |  | `height / gridStep - 1` (y-grid-index of squares in last row). |
+| `nx` | number |  | Number of columns. |
+| `ny` | number |  | Number of rows. |
 | `applyContainers` | boolean | `true` | Apply [containers](#containers). |
 
 ### Properties <small>&ndash; read/write/mutate</small>
@@ -778,13 +780,17 @@ __Constructor:__ `new Zone(options)`, where the `options` object is passed to th
 | `xMax` | number | x value at right of zone. |
 | `yMin` | number | y value at top of zone. | 
 | `yMax` | number | y value at bottom of zone. | 
+| `width` | number | Width. | 
+| `height` | number | Height. | 
 | `xMinIndex` | number | Zero-based x-grid-index of the leftmost squares of the zone. |  
 | `xMaxIndex` | number | Zero-based x-grid-index of the rightmost squares of the zone. |  
 | `yMinIndex` | number | Zero-based y-grid-index of the top squares of the zone. |
 | `yMaxIndex` | number | Zero-based y-grid-index of the bottom squares of the zone. |
+| `nx` | number | Number of columns. |
+| `ny` | number | Number of rows. |
 | `squares` | [xset](#xset) | Squares in the zone (top-left to bottom-right, top row first, then second row, and so on). |
 
-?> Note: if the zone is not in a simulation, `xMin`, `xMax`, `yMin`, `yMax` and `squares` are `null`, and `x` and `y` are meaningless.
+?> Note: if the zone is not in a simulation, `xMin`, `xMax`, `yMin`, `yMax`, `width`, `height` and `squares` are `null`, and `x` and `y` are meaningless.
 
 ### Properties <small>&ndash; read/write/mutate</small>
 

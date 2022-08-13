@@ -29,10 +29,12 @@ export class Zone extends Agent {
     this.xMin      = null;
     this.xMax      = null;
     this.yMin      = null;
-    this.Max       = null;
+    this.width     = null;
+    this.height    = null;
     [this.xMinIndex, this.xMaxIndex, this.yMinIndex, this.yMaxIndex] =
       getIndexLimits(options.indexLimits);
-    this._resetOnRemove = ['xMin', 'xMax', 'yMin', 'yMax', 'squares'];
+    this._resetOnRemove =
+      ['xMin', 'xMax', 'yMin', 'yMax', 'width', 'height', 'squares'];
     for (let name of ['xMinIndex', 'xMaxIndex', 'yMinIndex', 'yMaxIndex']) {
       const value = this[name];
       if (!Number.isInteger(value) || value < 0) {
@@ -45,6 +47,8 @@ export class Zone extends Agent {
     if (this.yMinIndex > this.yMaxIndex) {
       throw Error('yMinIndex cannot be greater than yMaxIndex');
     }
+    this.nx = this.xMaxIndex - this.xMinIndex + 1;
+    this.ny = this.yMaxIndex - this.yMinIndex + 1;
   }
 
   vis(obj = {}) {
@@ -53,8 +57,8 @@ export class Zone extends Agent {
 
   addTo(simulation) {
     this._validateSimulation(simulation);
-    if (simulation._grid.nx <= this.xMaxIndex ||
-        simulation._grid.ny <= this.yMaxIndex) {
+    if (simulation.nx <= this.xMaxIndex ||
+        simulation.ny <= this.yMaxIndex) {
       throw Error('zone is not inside the simulation grid');
     }
     this.squares = new XSet();
@@ -75,6 +79,8 @@ export class Zone extends Agent {
     this.yMax = bottomRightSquare.yMax;
     this.x = (this.xMin + this.xMax) / 2;
     this.y = (this.yMin + this.yMax) / 2;
+    this.width  = simulation.gridStep * this.nx;
+    this.height = simulation.gridStep * this.ny;
     this._addToSimulation(simulation);
     return this;
   }

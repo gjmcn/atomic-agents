@@ -87,10 +87,12 @@ export class Simulation {
     this.squares        = new XSet();
     this.zones          = new XSet();
     this._grid          = new Grid(this);
+    this.nx             = this._grid.nx;
+    this.ny             = this._grid.ny;
     this.xMinIndex      = 0
-    this.xMaxIndex      = this._grid.nx - 1,
+    this.xMaxIndex      = this.nx - 1,
     this.yMinIndex      = 0
-    this.yMaxIndex      = this._grid.ny - 1,
+    this.yMaxIndex      = this.ny - 1,
     this._actorsAdded   = new XSet();
     this._zonesAdded    = new XSet();
     this._actorsRemoved = new XSet();
@@ -331,15 +333,15 @@ export class Simulation {
   }
   
   squareAtIndex(index) {
-    const nx = this._grid.nx;
+    const nx = this.nx;
     return this._grid.squares[Math.floor(index / nx)]?.[index % nx];
   }
   
   squareOf(x, y) {
     return this._grid.squares[
-      y === this.height ? this._grid.ny - 1 : Math.floor(y / this.gridStep)
+      y === this.height ? this.ny - 1 : Math.floor(y / this.gridStep)
     ]?.[
-      x === this.width  ? this._grid.nx - 1 : Math.floor(x / this.gridStep)
+      x === this.width  ? this.nx - 1 : Math.floor(x / this.gridStep)
     ];
   }
 
@@ -408,7 +410,7 @@ export class Simulation {
 
   randomSquare() {
     const i = random.int(this.squares.size)();
-    return this._grid[Math.floor(i / this._grid.nx)][i % this._grid.nx];
+    return this._grid[Math.floor(i / this.nx)][i % this.nx];
   }
 
   fitGrid(options) {
@@ -1151,7 +1153,7 @@ export class Simulation {
     }
 
     // merge rectangles vertically
-    const ny = this._grid.ny;
+    const ny = this.ny;
     for (let i = 0; i < ny - 1; i++) {  // all but last row
       for (let top of rects.get(i) || []) {
         for (let btm of rects.get(i + 1) || []) {
