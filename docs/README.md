@@ -926,6 +926,7 @@ Atomic Agents exports the following helper functions:
 
 | Function | Description | Return |
 |:---|:---|:---|
+| `randomElement(arr)` | Random element of array. | any |
 | `shuffle(arr)` | Shuffle array in place. | array |
 | `loop(n, f)` | Loop `n` times; pass function `f` the loop index each step. | `undefined`|
 | `frame(period, steps, time)`| Value at time `time` of a repeating sequence with period `period` and steps 0, 1, ..., steps - 1. For example, `frame(18, 6, i)` will return `0`, `1` or `2`; it will return `0` if `i` is in the interval [0, 5] or [18, 23] or [36, 41] and so on. If `time` is negative, it is rounded up to zero. `period` should be divisible by `steps`.<br><br>__Also see:__ [`sim.frame`](#methods-ndash-basic). | number |

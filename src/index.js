@@ -1,7 +1,7 @@
 
 export { random }     from './random.js';
 export {
-  shuffle, loop, frame, gridInRect, gridInHex, partitionRect
+  shuffle, loop, randomElement, frame, gridInRect, gridInHex, partitionRect
 }                     from './helpers.js';
 export { XSet }       from './x-set.js';
 export { Vector }     from './vector.js';
