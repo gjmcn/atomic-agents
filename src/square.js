@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import { XSet } from './x-set.js';
+import { random } from './random.js';
 import {
   assertAgentType, assertInteger, getLayer, setVisOptions, setVis3dOptions
 } from './helpers.js';
@@ -47,6 +48,14 @@ export class Square extends Agent {
     this.zones     = new XSet();
   }
 
+  get width() {
+    return this._simulation.gridStep;
+  }
+
+  get height() {
+    return this._simulation.gridStep;
+  }
+
   get checker() {
     return this.xIndex % 2 ^ this.yIndex % 2;
   }
@@ -74,6 +83,16 @@ export class Square extends Agent {
   southwest() { return this._simulation._grid.squares[this.yIndex + 1]?.[this.xIndex - 1] }
   west()      { return this._simulation._grid.squares[this.yIndex]      [this.xIndex - 1] }
   northwest() { return this._simulation._grid.squares[this.yIndex - 1]?.[this.xIndex - 1] }
+
+  randomX(padding = 0) {
+    return random.uniform_01() * (this.width - 2 * padding) +
+      padding + this.xMin; 
+  }
+
+  randomY(padding = 0) {
+    return random.uniform_01() * (this.height - 2 * padding) +
+      padding + this.yMin; 
+  }
 
   compass() { return {
     north:     this.north(),

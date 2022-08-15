@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import { XSet } from './x-set.js';
+import { random } from './random.js';
 import { assertAgentType, assertInteger, getOverlapping, getIndexLimits,
   getLayer, partitionRect, setVisOptions } from './helpers.js';
 import { Agent } from "./agent.js";
@@ -119,6 +120,33 @@ export class Zone extends Agent {
   regions(options) {
     this._assertSimulation();
     return regions(this, options);
+  }
+
+  randomX(padding = 0) {
+    this._assertSimulation();
+    return random.uniform_01() * (this.width - 2 * padding) +
+      padding + this.xMin; 
+  }
+
+  randomY(padding = 0) {
+    this._assertSimulation();
+    return random.uniform_01() * (this.height - 2 * padding) +
+      padding + this.yMin; 
+  }
+
+  randomXIndex() {
+    return random.int(this.xMinIndex, this.xMaxIndex + 1)();
+  }
+
+  randomYIndex() {
+    return random.int(this.yMinIndex, this.yMaxIndex + 1)();
+  }
+
+  randomSquare() {
+    this._assertSimulation();
+    return this._simulation._grid.squares
+      [this.randomYIndex()]
+      [this.randomXIndex()];
   }
 
 

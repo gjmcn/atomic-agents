@@ -260,9 +260,12 @@ Static properties are accessed via the `Simulation` class itself. E.g. `Simulati
 | `squareAtIndex(index)` | Square at given linear-grid-index (which is zero-based and runs top-left to bottom-right, top row first, then second row, and so on). | [square](#square) or `undefined` |
 | `squareOf(x, y)` | Square that the point `x`,`y` is in. If the point lies on a square boundary, the square to the right/below is used (unless the point is on the right/bottom edge of the simulation). | [square](#square) or `undefined` |
 | `squaresInRect(rect)` | `rect` describes a rectangle by its grid indices. `rect` can be an iterable with elements `xMinIndex`, `xMaxIndex`, `yMinIndex`, `yMaxIndex`, or an object with these properties (such as a simulation object or a zone). The rectangle may be partially (or completely) outside the simulation grid. Returns the squares of the rectangle ordered top-left to bottom-right, top row first, then second row, and so on. | array |
-| `squaresInCircle(circle,`<br>&emsp;`contain = 'within')` | Get squares in `circle` &mdash; an object with `x`, `y` and `radius` properties. `contain` specifies when a square is 'in' the circle; `contain` can be `'within'`, `'centroid'` or `'overlap'`  The circle may be partially (or completely) outside the simulation grid.<br><br>__Note:__ the current implementation of `squaresInCircle` creates a temporary actor, and adds and removes it from the simulation. | array |
-| `randomX(padding)` | Random value between 0 (inclusive) and `sim.width` (exclusive). If `padding` is used, the returned value is at least `padding` from 0 and `sim.width`. | number |
-| `randomY(padding)` | Random value between 0 (inclusive) and `sim.height` (exclusive). If `padding` is used, the returned value is at least `padding` from 0 and `sim.height`. | number |
+| `squaresInCircle(circle,`<br>&emsp;`contain = 'within')` | Get squares in `circle` &mdash; an object with `x`, `y` and `radius` properties. `contain` specifies when a square is 'in' the circle; `contain` can be `'within'`, `'centroid'` or `'overlap'`. The circle may be partially (or completely) outside the simulation grid.<br><br>__Note:__ the current implementation of `squaresInCircle` creates a temporary actor, and adds and removes it from the simulation. | array |
+| `randomX(padding = 0)` | Random value between 0 (inclusive) and `sim.width` (exclusive). If `padding` is used, the returned value is at least `padding` from 0 and `sim.width`. | number |
+| `randomY(padding = 0)` | Random value between 0 (inclusive) and `sim.height` (exclusive). If `padding` is used, the returned value is at least `padding` from 0 and `sim.height`. | number |
+| `randomXIndex()` | Random x index (i.e. column index) of the simulation grid. | number |
+| `randomYIndex()` | Random y index (i.e. row index) of the simulation grid. | number |
+| `randomSquare()` | Random simulation square. | square |
 | `frame(period, steps)` | `sim.frame(period, steps)` is equivalent to `frame(period, steps, sim.tickIndex)`. See [`frame`](#helpers) for details. | number |
 | `registerPolylines(`<br>&emsp;`polylines,`<br>&emsp;`off = Infinity)` | `polylines` should be a single [polyline](#polyline) or an iterable of polylines; `off` is the distance above which points are not considered close to polylines. Returns a function that takes a 'point' (an object with `x` and `y` properties) and returns an object with information about the nearest point on any of the polylines: a `line` property containing the polyline of the nearest point, and all the properties returned by the [`pointNearest`](#methods-ndash-instance-2) polyline method.<br><br>__Note:__ the returned function returns `null` when passed a point that is outside the simulation grid (or for an actor, does not overlap the grid) or if the point is greater than `off` distance from the polylines. | function |
 | `routes(options)` | Compute optimal paths between squares. `options` is an object; valid properties and their defaults are:<ul style="margin:0"><li>`squareCost = 0`: cost to enter square; number or function (passed square, returns cost).</li><li>`edgeCost = 0`: edge cost; number or function (passed start square and end square, returns cost)</li><li>`edges = false`: edges to add using `edgeCost`; `false` (none), `true` (all) `4` (main neighbors), `8` (main and diagonal neighbors).</li><li>`extraEdges = []`: extra edges. Each element of the array is `[sqs1, sqs2, cost, reverse]`. Each of `sqs1` and `sqs2` is a square/zone, or an iterable of squares/zones, ... (any depth of nesting is allowed) which is flattened into a set of unique squares. Edges are added for all `sqs1` → `sqs2` pairs of squares. `cost` should be a number or a function (passed start square and end square, returns cost). If `reverse` is `true`, `sqs2` → `sqs1` edges are also added. If a given edge has been set from `edges`, `extraEdges` overwrites it (as long as the new edge cost is finite).</li></ul><br>`routes` returns an object with methods:<ul style="margin:0"><li>`cost(sq1, sq2)`: cost of optimal route from `sq1` to `sq2` (`Infinity` if no route).</li><li>`next(sq1, sq2)`: next square on optimal route from `sq1` to `sq2` (`null` if no route).</li><li>`route(sq1, sq2)`: optimal route from `sq1` to `sq2` (an array of squares or `null`).</li><li>`best(sources, targets)`: sources and targets are flattened to unique squares (see `extraEdges` above). `best` returns a map: each key is a source square, the value is an object `{cost, target, next}` specifying the min cost to a target square (or `Infinity`), the target square (or `null`), and the next square of the optimal route (or `null`).</li></ul><br>__Note:__ costs can be negative as long there are no negative cycles. Only finite cost edges are added, so an inifinite cost optimal route indicates there is no route. | object |
@@ -722,8 +725,6 @@ __Extends:__ [`Agent`](#agent).
 
 !> Squares are added to a simulation automatically &mdash; squares cannot be removed and new squares should not be added. The `Square` class is only exported to allow methods and properties to be added. For example, we might choose to attach the same `updateState` method to all squares: `Square.prototype.updateState = ...`
 
-The width and height of grid squares is `sim.gridStep`.
-
 ### Properties <small>&ndash; read only</small>
 
 | Property | Type | Description |
@@ -732,7 +733,9 @@ The width and height of grid squares is `sim.gridStep`.
 | `xMin` | number | x value at left of square. |  
 | `xMax` | number | x value at right of square. |
 | `yMin` | number | y value at top of square. | 
-| `yMax` | number | y value at bottom of square. | 
+| `yMax` | number | y value at bottom of square. |
+| `width` | number | Width, equal to `sim.gridStep`. |
+| `height` | number | Height, equal to `sim.gridStep`. |
 | `xIndex` | number | Zero-based x-grid-index of the square. |  
 | `yIndex` | number | Zero-based y-grid-index of the square. |
 | `index` | number | Zero-based linear-grid-index of the square (top-left to bottom-right, top row first, then second row, and so on). |
@@ -752,6 +755,8 @@ The width and height of grid squares is `sim.gridStep`.
 | Method | Description | Return |
 |:---|:---|:---|
 | `vis(options = {})` | Set visualisation options used by [Atomic Agents Vis](https://gjmcn.github.io/atomic-agents-vis/). This method can only be called once. | square |
+| `randomX(padding = 0)` | Random value between the square's `xMin` (inclusive) and `xMax` (exclusive). If `padding` is used, the returned value is at least `padding` from `xMin` and `xMax`. | number |
+| `randomY(padding = 0)` | Random value between the square's `yMin` (inclusive) and `yMax` (exclusive). If `padding` is used, the returned value is at least `padding` from `yMin` and `yMax`. | number |
 
 ### Methods <small>&ndash; proximity</small>
 
@@ -804,6 +809,11 @@ __Constructor:__ `new Zone(options)`, where the `options` object is passed to th
 | Method | Description | Return |
 |:---|:---|:---|
 | `vis(options = {})` | Set visualisation options used by [Atomic Agents Vis](https://gjmcn.github.io/atomic-agents-vis/). This method can only be called once. | zone |
+| `randomX(padding = 0)` | Random value between the zone's `xMin` (inclusive) and `xMax` (exclusive). If `padding` is used, the returned value is at least `padding` from `xMin` and `xMax`. | number |
+| `randomY(padding = 0)` | Random value between the zone's `yMin` (inclusive) and `yMax` (exclusive). If `padding` is used, the returned value is at least `padding` from `yMin` and `yMax`. | number |
+| `randomXIndex()` | Random x index (i.e. column index of the simulation grid) that is inside the zone. | number |
+| `randomYIndex()` | Random y index (i.e. row index of the simulation grid) that is inside the zone. | number |
+| `randomSquare()` | Random square of the zone. | square |
 | `partition(options = {})` | Recursively partition zone into smaller zones. See the [sim.partition](#methods-ndash-basic) method for details. | array |
 | `regions(options = {})` | Generate connected regions within zone; each region is an [xset](#xset) of squares. See the [`sim.regions`](#methods-ndash-basic) method for details. | array |
 

@@ -333,8 +333,7 @@ export class Simulation {
   }
   
   squareAtIndex(index) {
-    const nx = this.nx;
-    return this._grid.squares[Math.floor(index / nx)]?.[index % nx];
+    return this._grid.squares[Math.floor(index / this.nx)]?.[index % this.nx];
   }
   
   squareOf(x, y) {
@@ -396,21 +395,24 @@ export class Simulation {
     return [];
   }
 
-  randomX(padding) {
-    return padding
-      ? random.uniform_01() * (this.width - 2 * padding) + padding
-      : random.uniform_01() * this.width;
+  randomX(padding = 0) {
+    return random.uniform_01() * (this.width - 2 * padding) + padding;
   }
 
-  randomY(padding) {
-    return padding
-      ? random.uniform_01() * (this.height - 2 * padding) + padding
-      : random.uniform_01() * this.height;
+  randomY(padding = 0) {
+    return random.uniform_01() * (this.height - 2 * padding) + padding;
+  }
+
+  randomXIndex() {
+    return random.int(this.nx)();
+  }
+
+  randomYIndex() {
+    return random.int(this.ny)();
   }
 
   randomSquare() {
-    const i = random.int(this.squares.size)();
-    return this._grid[Math.floor(i / this.nx)][i % this.nx];
+    return this.squareAtIndex(random.int(this.squares.size)());
   }
 
   fitGrid(options) {
