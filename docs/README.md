@@ -966,6 +966,8 @@ For details of these methods, see [`d3-random`](https://github.com/d3/d3-random)
 
 The other `random` methods are:
 
+* `categorical(probs)`: returns a function that generates values (`0`, `1`, `2`, ...) from a categorical distribution with the given ratio &mdash; `probs` should be an iterable with non-negative elements, but the elements need not sum to 1.
+
 * `uniform_01()`: generate a number from a uniform distribution over `0` (inclusive) to `1` (exclusive). Unlike the above methods, `uniform_01` generates a number directly, i.e. it returns a number, not a function. Use `random.uniform_01()` instead of `Math.random()`.
 
 * `seed(s)`: if `s` is omitted (or is `undefined` or `null`), `Math.random` is used as the source of all random numbers. Alternatively, pass a seed `s` (a real number in the interval [0,1)) to use a linear congruential generator with the given seed &mdash; see [`d3.randomLcg`](https://github.com/d3/d3-random#randomLcg).
