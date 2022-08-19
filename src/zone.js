@@ -9,6 +9,7 @@ import { assertAgentType, assertInteger, getOverlapping, getIndexLimits,
 import { Agent } from "./agent.js";
 import { insideDistance } from "./inside-distance.js";
 import { regions } from './regions.js';
+import { autotile } from './autotile.js';
 
 export class Zone extends Agent {
 
@@ -120,6 +121,10 @@ export class Zone extends Agent {
   regions(options) {
     this._assertSimulation();
     return regions(this, options);
+  }
+
+  autotile(options) {
+    return autotile(this.squares, {...options, _forceUseProbs: false });
   }
 
   randomX(padding = 0) {

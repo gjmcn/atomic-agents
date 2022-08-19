@@ -489,7 +489,7 @@ export class Simulation {
   }
 
   autotile(options) {
-    return autotile(this, options);
+    return autotile(this.squares, {...options, _forceUseProbs: false });
   }
 
   // ========== proximity methods ==========

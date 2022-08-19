@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Function that generates valid square tilings given permitted edge matches and
-// prior probabilities of tiles. Based on ideas from Wave Function Collapse
+// Function that takes an iterable of squares, and generates a valid tiling of
+// the squares given the permitted edge matches and prior probabilities of
+// tiles. Based on ideas from Wave Function Collapse
 // (https://github.com/mxgmn/WaveFunctionCollapse) and simpler alternatives
 // (e.g. https://robertheaton.com/2018/12/17/wavefunction-collapse-algorithm/).
 //
@@ -34,7 +35,18 @@ function edgeAtDirection(tileEdges, rotationCode, direction) {
 
 // ========== autotile function ==========
 
-export function autotile(sim, options) {
+export function autotile(squares, options) {
+
+  // copy and check squares
+  squares = new XSet(squares);
+  if (squares.size === 0) {
+    return {
+      complete: true,
+      assignments: new Map,
+      attempts: 0,
+      backtracks: 0,
+    };
+  }
 
   
   // ========== get options ==========
@@ -75,14 +87,16 @@ export function autotile(sim, options) {
     }
   }  
 
-  // startTiles: if used, a map where each key is a square and the value is a
-  //  { name, rotationCode = 0 } object - see the format of the map returned by
-  //  autotile for details. The autotile algorithm finds tiles for all squares
-  //  not included in startTiles.
-  //  - the 'edge validity' of start tiles is not checked - i.e. adjacent start
-  //    tiles need not obey the edge relationships in the edges option. 
+  // startTiles: if used, a map (or array of arrays) where each key is a square
+  //  and the value is a { name, rotationCode = 0 } object - see the format of
+  //  the map returned by autotile for details. The autotile algorithm finds
+  //  tiles for all squares not included in startTiles.
+  //  - The 'edge validity' of start tiles is not checked - i.e. adjacent start
+  //    tiles need not obey the edge relationships in the edges option.
+  //  - Entries for squares not in the squares argument are dropped.
   const startTiles = new Map;
   for (let [sq, tileInfo] of options.startTiles || []) {
+    if (!squares.has(sq)) continue; 
     tileInfo = {...tileInfo};
     tileInfo.rotationCode ??= 0;
     startTiles.set(sq, tileInfo);
@@ -97,13 +111,20 @@ export function autotile(sim, options) {
   //  different tile for the neighbor so that the edge facing the
   //  no-candidates-square is different.
   const backtrack = options.backtrack ?? true;
-  
+
+  // _forceUseProbs = true, boolean. If true, forces algorithm to use
+  //  probabilities. This is a hack which ensures that if not autotiliing a
+  //  simulation, zone or actor, we use probabilities and hence naively
+  //  initialise the candidates of all non-start-squares - which is required
+  //  since may have unconnected components so a single random start square
+  //  may be insufficient. 
+  let useProbs = options._forceUseProbs ?? true;
+
 
   // ========== tile names and tiles map ==========
 
   const tileNames = [];
   const tilesMap = new Map;
-  let useProbs = false;
   for (let [tileName, tileInfo] of Object.entries(tiles)) {
     tileNames.push(tileName);
     tilesMap.set(tileName, tileInfo);
@@ -290,7 +311,7 @@ export function autotile(sim, options) {
   }
 
 
-  // ========== assign tile to square ==========
+  // ========== choose a tile from candidates ==========
 
   function chooseTile(candidates) {
     const { tileNames, probs } = candidates.__probInfo;
@@ -328,7 +349,7 @@ export function autotile(sim, options) {
 
     // candidates and free squares
     const allCandidates = new Map;
-    const freeSquares = new XSet(sim.squares);
+    const freeSquares = new XSet(squares);
     freeSquares.deletes(assignments.keys());
 
     // given an assigned-to square, update candidates of neighboring squares
@@ -362,7 +383,7 @@ export function autotile(sim, options) {
     // if not using probs and no start tiles, assign to a random square - or
     // there will be no assignments or candidates to kick off assignment loop
     if (!useProbs && !assignments.size) {
-      const sq = randomElement([...sim.squares]);
+      const sq = randomElement([...squares]);
       const tileName = randomElement(tileNames);
       assignments.set(sq, {
         name: tileName,
@@ -381,7 +402,7 @@ export function autotile(sim, options) {
     // start squares nor their neighbors - since these squares may still have
     // the lowest entropy
     if (useProbs) {
-      for (let sq of sim.squares) {
+      for (let sq of squares) {
         if (!assignments.has(sq) && !allCandidates.has(sq)) {
           const candidates = initCandidates(sq);
           if (!candidates.__probInfo) break attemptsLoop;
@@ -471,7 +492,7 @@ export function autotile(sim, options) {
   }
 
   return {
-    complete: assignments.size === sim.squares.size,
+    complete: assignments.size === squares.size,
     assignments: assignments,
     attempts,
     backtracks,

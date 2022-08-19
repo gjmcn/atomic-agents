@@ -13,6 +13,7 @@ import { nearestFrom } from './from-functions.js';
 import { within } from './within.js';
 import { insideDistance } from "./inside-distance.js";
 import { regions } from './regions.js';
+import { autotile } from './autotile.js';
 
 export class Actor extends Agent {
 
@@ -201,6 +202,10 @@ export class Actor extends Agent {
     return regions(this, options);
   }
 
+  autotile(options) {
+    return autotile(
+      this.enclosing('square'), {...options, _forceUseProbs: false });
+  }
 
 
   // ========== proximity methods ==========
