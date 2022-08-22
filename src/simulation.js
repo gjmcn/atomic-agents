@@ -492,6 +492,7 @@ export class Simulation {
     return autotile(this.squares, {...options, _forceUseProbs: false });
   }
 
+  
   // ========== proximity methods ==========
 
   _insideNeighbors(maxDistance) {  // actor neighbors, no type parameter

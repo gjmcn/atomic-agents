@@ -1,3 +1,17 @@
+#### 0.1.11 &mdash; August 22, 2022
+
+* Add to `Simulation`: `nx`, `ny`, `randomSquare`, `randomXIndex`, `randomYIndex` and `autotile`.
+
+* Add to `Square`: `width`, `height`, `randomX` and `randomY`.
+
+* Add to `Zone`: `nx`, `ny`, `width`, `height`, `randomX`, `randomY`, `randomSquare`, `randomXIndex`, `randomYIndex` and `autotile`.
+
+* Add to `Actor`: `autotile`.
+
+* Add to `random`: `categorical`.
+
+* Add helpers: `randomElement` and `autotile`.
+
 #### 0.1.10 &mdash; July 24, 2022
 
 * Add `isClosed` and `copy` to `Polyline`.
