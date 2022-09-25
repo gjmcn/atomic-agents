@@ -163,4 +163,32 @@ test('getOverlapping, 1', () => {
   expect(indices).toStrictEqual([0, 3]);
 });
 
+test('moduloShift, 1', () => {
+  expect(moduloShift(13, 5)).toBe(3);
+});
+test('moduloShift, 2', () => {
+  expect(moduloShift(-2, 5)).toBe(3);
+});
+test('moduloShift, 3', () => {
+  expect(moduloShift(3, 5)).toBe(3);
+});
+test('moduloShift, 4', () => {
+  expect(moduloShift(5, 5)).toBe(0);
+});
+
+test('normalizeAngle, 1', () => {
+  expect(normalizeAngle(7)).toBeCloseTo(7 - 2 * Math.PI);
+});
+test('normalizeAngle, 2', () => {
+  expect(normalizeAngle(-2)).toBeCloseTo(-2 + 2 * Math.PI);
+});
+test('normalizeAngle, 3', () => {
+  expect(normalizeAngle(15)).toBeCloseTo(15 -  4 * Math.PI);
+});
+test('normalizeAngle, 4', () => {
+  expect(normalizeAngle(2)).toBeCloseTo(2);
+});
+
+
+
 // !! NOT FINISHED !!
